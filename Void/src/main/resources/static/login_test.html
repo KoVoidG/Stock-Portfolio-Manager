@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Login Test</title>
+  <style>
+    body { font-family: Arial, Helvetica, sans-serif; max-width: 720px; margin: 2rem auto; }
+    label { display: block; margin-top: .75rem; }
+    input { padding: .5rem; width: 100%; box-sizing: border-box; }
+    button { margin-top: 1rem; padding: .6rem 1rem; }
+    pre { background:#f6f8fa; padding:1rem; border-radius:6px; }
+  </style>
+</head>
+<body>
+  <h1>Login Test</h1>
+  <p>Enter credentials and press <strong>Login</strong>. Successful credentials: <code>alice / secret</code></p>
+
+  <form id="loginForm">
+    <label>Username
+      <input type="text" id="username" value="alice" />
+    </label>
+    <label>Password
+      <input type="password" id="password" value="secret" />
+    </label>
+    <button type="submit">Login</button>
+  </form>
+
+  <h2>Response</h2>
+  <div id="result"><pre id="json">(no request yet)</pre></div>
+
+  <script>
+    const form = document.getElementById('loginForm');
+    const jsonEl = document.getElementById('json');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      jsonEl.textContent = 'Sending...';
+
+      const payload = {
+        username: document.getElementById('username').value,
+        password: document.getElementById('password').value
+      };
+
+      try {
+        const res = await fetch('/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        const txt = await res.text();
+        let pretty;
+        try { pretty = JSON.stringify(JSON.parse(txt), null, 2); } catch (err) { pretty = txt }
+
+        jsonEl.textContent = `HTTP ${res.status} ${res.statusText}\n\n${pretty}`;
+      } catch (err) {
+        jsonEl.textContent = 'Network error: ' + err;
+      }
+    });
+  </script>
+</body>
+</html>
