@@ -1,0 +1,7 @@
+Windows: .\mvnw clean package
+Apple: bash mvnw clean package
+java -jar target/spark-hello-1.0-SNAPSHOT-jar-with-dependencies.jar
+
+http://localhost:8080/login.html
+
+
