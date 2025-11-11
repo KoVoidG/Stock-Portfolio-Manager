@@ -69,6 +69,87 @@ public class Server {
                 return gson.toJson(new ErrorResponse("Invalid credentials"));
             }
         });
+
+        // Portfolio instance to manage holdings
+        Portfolio portfolio = new Portfolio();
+
+        // --- CRUD for stocks ---
+        // List all holdings
+        get("/api/stocks", (req, res) -> {
+            res.type("application/json");
+            Map<String, Integer> holdings = portfolio.getHoldings();
+            // Create a simple response array
+            return gson.toJson(holdings.entrySet().stream().map(e -> {
+                String sym = e.getKey();
+                Stock s = portfolio.getStock(sym);
+                return Map.of(
+                        "symbol", sym,
+                        "company_name", s == null ? null : s.getcompany_Name(),
+                        "stock_exchange", s == null ? null : s.getStock(),
+                        "current_price", s == null ? null : s.getPrice(),
+                        "quantity", e.getValue()
+                );
+            }).toList());
+        });
+
+        // Add a stock purchase (create or increase quantity)
+        post("/api/stocks", (req, res) -> {
+            res.type("application/json");
+            NewStockRequest nsr = gson.fromJson(req.body(), NewStockRequest.class);
+            if (nsr == null || nsr.symbol == null) {
+                res.status(400);
+                return gson.toJson(new ErrorResponse("Invalid stock data"));
+            }
+            Stock s = new Stock(nsr.company_name, nsr.symbol, nsr.stock_exchange, nsr.current_price);
+            portfolio.addStock(s, nsr.quantity);
+            res.status(201);
+            return gson.toJson(Map.of("status", "ok"));
+        });
+
+        // Update stock details or quantity
+        post("/api/stocks/:symbol", (req, res) -> {
+            res.type("application/json");
+            String symbol = req.params("symbol");
+            UpdateStockRequest usr = gson.fromJson(req.body(), UpdateStockRequest.class);
+            if (symbol == null || usr == null) {
+                res.status(400);
+                return gson.toJson(new ErrorResponse("Invalid request"));
+            }
+            Stock existing = portfolio.getStock(symbol);
+            if (existing == null) {
+                // create new if details provided
+                Stock s = new Stock(usr.company_name == null ? symbol : usr.company_name, symbol, usr.stock_exchange == null ? "" : usr.stock_exchange, usr.current_price == null ? 0.0 : usr.current_price);
+                portfolio.addStock(s, usr.quantity == null ? 0 : usr.quantity);
+            } else {
+                if (usr.company_name != null) {
+                    existing.setCompanyName(usr.company_name);
+                }
+                if (usr.stock_exchange != null) {
+                    existing.setStockExchange(usr.stock_exchange);
+                }
+                if (usr.current_price != null) {
+                    existing.setPrice(usr.current_price);
+                }
+                if (usr.quantity != null) {
+                    // set quantity to provided value
+                    portfolio.removeStock(symbol, Integer.MAX_VALUE); // remove completely
+                    portfolio.addStock(existing, usr.quantity);
+                }
+            }
+            return gson.toJson(Map.of("status", "ok"));
+        });
+
+        // Delete a stock entirely
+        post("/api/stocks/:symbol/delete", (req, res) -> {
+            res.type("application/json");
+            String symbol = req.params("symbol");
+            if (symbol == null) {
+                res.status(400);
+                return gson.toJson(new ErrorResponse("Invalid symbol"));
+            }
+            portfolio.removeStock(symbol, Integer.MAX_VALUE);
+            return gson.toJson(Map.of("status", "deleted"));
+        });
     }
 
     static class LoginRequest {
@@ -95,5 +176,22 @@ public class Server {
         ErrorResponse(String e) {
             error = e;
         }
+    }
+
+    static class NewStockRequest {
+
+        String company_name;
+        String symbol;
+        String stock_exchange;
+        double current_price;
+        int quantity;
+    }
+
+    static class UpdateStockRequest {
+
+        String company_name;
+        String stock_exchange;
+        Double current_price;
+        Integer quantity;
     }
 }
