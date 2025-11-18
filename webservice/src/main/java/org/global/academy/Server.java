@@ -51,7 +51,7 @@ public class Server {
         // Random number
         get("/random", (req, res) -> {
             res.type("application/json");
-            int randomInt = rand.nextInt(10) + 1; // 1 to 10
+            int randomInt = rand.nextInt(13); // 0 to 12
             return gson.toJson(Map.of("number", randomInt));
         });
 

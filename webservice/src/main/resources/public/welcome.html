@@ -48,6 +48,7 @@
       border: none;
       color: #fff;
       padding: 12px 30px;
+      margin: 10px;
       border-radius: 30px;
       font-size: 1em;
       cursor: pointer;
@@ -65,7 +66,11 @@
 <body>
   <div class="container">
     <h2>Welcome, <span class="username" id="username"></span>!</h2>
-    <button onclick="logout()">Logout</button>
+    <div>
+      <button onclick="logout()">Logout</button>
+      <button onclick="goRandom()">Random</button>
+    </div>
+    <p id="randomResult" style="margin-top:12px;color:#fff;font-weight:bold;"></p>
   </div>
 
   <script>
@@ -76,6 +81,23 @@
       localStorage.removeItem('username');
       localStorage.removeItem('token');
       window.location.href = 'login.html';
+    }
+
+    function goRandom() {
+      const out = document.getElementById('randomResult');
+      out.textContent = 'Loading...';
+      fetch('/random')
+        .then(r => {
+          if (!r.ok) throw new Error('Network response was not ok');
+          return r.json();
+        })
+        .then(data => {
+          // server returns { number: <int> }
+          out.textContent = 'Random number: ' + (data && data.number !== undefined ? data.number : JSON.stringify(data));
+        })
+        .catch(err => {
+          out.textContent = 'Failed to get random number';
+        });
     }
   </script>
 </body>
