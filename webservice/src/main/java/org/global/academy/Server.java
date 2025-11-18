@@ -55,6 +55,23 @@ public class Server {
             return gson.toJson(Map.of("number", randomInt));
         });
 
+        // Get Apple stock with today's price
+        get("/getapple", (req, res) -> {
+            res.type("application/json");
+            double applePrice = Stock.fetchTodaysPrice("AAPL");
+            if (applePrice < 0) {
+                res.status(500);
+                return gson.toJson(new ErrorResponse("Failed to fetch Apple stock price"));
+            }
+            Stock appleStock = new Stock("Apple Inc.", "AAPL", "NASDAQ", applePrice);
+            return gson.toJson(Map.of(
+                    "symbol", appleStock.getsymbol(),
+                    "company_name", appleStock.getcompany_Name(),
+                    "stock_exchange", appleStock.getStock(),
+                    "current_price", appleStock.getPrice()
+            ));
+        });
+
         // API endpoint for login
         post("/login", (req, res) -> {
             System.out.println("Received /login request with body: " + req.body());
