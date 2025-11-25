@@ -7,7 +7,7 @@
 
 ---
 
-## 📘 Description  
+##  Description  
 The **Stock Portfolio Manager** is a simple and educational project designed to manage and track stock investments through a Java backend and an HTML-based frontend interface.  
 It provides essential **CRUD (Create, Read, Update, Delete)** operations, allowing users to manage stock data, view portfolio performance, and simulate investment growth in a user-friendly way.  
 
@@ -15,16 +15,16 @@ This project demonstrates core concepts in **web development, API design, and Ja
 
 ---
 
-## ✨ Features  
-✅ Add, update, and delete stock records  
-✅ View portfolio performance and total value  
-✅ Organized CRUD-based backend structure  
-✅ Lightweight and easily extendable for learning or demos  
-✅ Clean HTML frontend for interaction  
+##  Features  
+– Add, update, and delete stock records  
+– View portfolio performance and total value  
+– Organized CRUD-based backend structure  
+– Lightweight and easily extendable for learning or demos  
+– Clean HTML frontend for interaction  
 
 ---
 
-## 🛠️ Technology Stack  
+##  Technology Stack  
 | Layer | Technology |
 |--------|-------------|
 | **Backend** | Java (Maven, Spark framework) |
@@ -34,7 +34,7 @@ This project demonstrates core concepts in **web development, API design, and Ja
 
 ---
 
-## 📁 Project Structure  
+##  Project Structure  
 
 ```
 Stock-Portfolio-Manager/
@@ -59,7 +59,7 @@ Stock-Portfolio-Manager/
 
 ---
 
-## 🧮 Calculation Logic  
+##  Calculation Logic  
 - Each **Stock** includes data like symbol, shares, and price.  
 - The **Value** of each stock is computed as:  
 ``` value = shares × price ```
@@ -69,7 +69,7 @@ Stock-Portfolio-Manager/
 
 ---
 
-## 🛠 Requirements
+## Requirements
 
 - **Java 17 or newer**  
 - **Maven** (included wrapper: `mvnw`)  
@@ -77,7 +77,7 @@ Stock-Portfolio-Manager/
 
 ---
 
-## 💻 How to Run  
+## How to Run  
 
 ### 1️⃣ Clone the Repository  
 ```bash
@@ -95,7 +95,7 @@ cd Stock-Portfolio-Manager
 
 ---
 
-## 📚 Learning Outcomes
+##  Learning Outcomes
 
 By building this project, you’ll understand:
 - How CRUD APIs work in a Java environment
@@ -137,3 +137,5 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+---
