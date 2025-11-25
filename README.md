@@ -69,6 +69,14 @@ Stock-Portfolio-Manager/
 
 ---
 
+## 🛠 Requirements
+
+- **Java 17 or newer**  
+- **Maven** (included wrapper: `mvnw`)  
+- Any browser for frontend access
+
+---
+
 ## 💻 How to Run  
 
 ### 1️⃣ Clone the Repository  
@@ -95,3 +103,15 @@ By building this project, you’ll understand:
 - Managing data models and web requests in a full-stack workflow
 
 ---
+
+## Contributors
+
+<a href="https://github.com/KoVoidG/Stock-Portfolio-Manager/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=KoVoidG/Stock-Portfolio-Manager" />
+</a>
+
+---
+
+## 📜 License
+
+This project is licensed under the **MIT License**.
