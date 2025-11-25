@@ -69,6 +69,7 @@
     <div>
       <button onclick="logout()">Logout</button>
       <button onclick="goRandom()">Random</button>
+      <button onclick="goStocks()">Stocks</button>
     </div>
     <p id="randomResult" style="margin-top:12px;color:#fff;font-weight:bold;"></p>
   </div>
@@ -98,6 +99,11 @@
         .catch(err => {
           out.textContent = 'Failed to get random number';
         });
+    }
+
+    function goStocks() {
+      // Navigate to the themed stock app page
+      window.location.href = 'stock_app.html';
     }
   </script>
 </body>

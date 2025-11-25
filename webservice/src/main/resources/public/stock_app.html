@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock Information App</title>
+    <style>
+        /* Match the welcome page theme */
+        body {
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #74ABE2, #5563DE);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #fff;
+        }
+
+        .stock-container {
+            max-width: 520px;
+            width: 92%;
+            padding: 28px 32px;
+            background: rgba(255, 255, 255, 0.06);
+            backdrop-filter: blur(8px);
+            border-radius: 20px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+            color: #fff;
+        }
+
+        h2 {
+            font-size: 26px;
+            margin-top: 0;
+            margin-bottom: 16px;
+            font-weight: 700;
+            text-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        }
+
+        .selection-form label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        #stockSelect {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            margin-bottom: 15px;
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 15px;
+            background: rgba(255,255,255,0.95);
+            color: #000000;
+        }
+
+        #fetchButton, .back-button {
+            width: 100%;
+            padding: 12px;
+            background: #e74c3c;
+            color: #fff;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.25s ease;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+        }
+
+        #fetchButton:hover, .back-button:hover {
+            background: #ff6b5b;
+            transform: translateY(-2px);
+        }
+
+        .result-box {
+            margin-top: 20px;
+            padding: 16px;
+            border-radius: 12px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.06);
+            box-shadow: 0 6px 18px rgba(0,0,0,0.25);
+            color: #fff;
+        }
+
+        .success-message {
+            color: #ffe600;
+            font-weight: 700;
+            margin-bottom: 12px;
+            display: block;
+        }
+
+        .result-box table { width: 100%; border-collapse: collapse; }
+        .result-box td { padding: 8px 0; font-size: 15px; vertical-align: top; }
+        .result-box td:first-child { width: 50%; font-weight: 700; opacity: 0.9; }
+    </style>
+</head>
+<body>
+
+<div class="stock-container">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+        <h2>Stock Information</h2>
+        <button class="back-button" style="width:auto;padding:10px 16px;" onclick="backToWelcome()">Back</button>
+    </div>
+
+    <div class="selection-form">
+        <label for="stockSelect">Select a Stock:</label>
+        <select id="stockSelect">
+            <option value="">-- Choose a stock --</option>
+            <option value="AAPL">Apple (AAPL)</option>
+            <option value="MSFT">Microsoft (MSFT)</option>
+            <option value="GOOGL">Google (GOOGL)</option>
+            <option value="AMZN">Amazon (AMZN)</option>
+            <option value="TSLA">Tesla (TSLA)</option>
+            <option value="META">Meta (META)</option>
+            <option value="NFLX">Netflix (NFLX)</option>
+            <option value="NVDA">NVIDIA (NVDA)</option>
+        </select>
+        <button id="fetchButton">Fetch Stock Info</button>
+    </div>
+
+    <div id="resultBox" class="result-box" style="display: none;">
+        <span class="success-message">Success!</span>
+        <table>
+            <tr>
+                <td>Company:</td>
+                <td id="companyName"></td>
+            </tr>
+            <tr>
+                <td>Symbol:</td>
+                <td id="symbol"></td>
+            </tr>
+            <tr>
+                <td>Exchange:</td>
+                <td id="exchange"></td>
+            </tr>
+            <tr>
+                <td>Current Price:</td>
+                <td id="currentPrice"></td>
+            </tr>
+            <tr>
+                <td>Price When Bought:</td>
+                <td id="priceWhenBought"></td>
+            </tr>
+            <tr>
+                <td>Owner:</td>
+                <td id="owner"></td>
+            </tr>
+        </table>
+    </div>
+</div>
+
+<script>
+    // ------------------- JavaScript Functionality -------------------
+    document.getElementById('fetchButton').addEventListener('click', function() {
+        const selectElement = document.getElementById('stockSelect');
+        const selectedSymbol = selectElement.value;
+        const resultBox = document.getElementById('resultBox');
+
+        if (selectedSymbol) {
+            const stockData = fetchStockData(selectedSymbol);
+            
+            if (stockData) {
+                updateStockInfo(stockData);
+                resultBox.style.display = 'block'; // Show the results
+            } else {
+                // Should not happen with the mock data, but good practice
+                alert("Stock data not available for the selected symbol.");
+                resultBox.style.display = 'none';
+            }
+        } else {
+            alert("Please select a stock first.");
+            resultBox.style.display = 'none'; // Hide if nothing is selected
+        }
+    });
+
+    /**
+     * Fetches mock stock data based on the selected symbol.
+     * In a real application, this would be an asynchronous API call.
+     */
+    function fetchStockData(symbol) {
+        // --- Mock Data Store matching the provided image/options ---
+        const mockData = {
+            'TSLA': {
+                company: 'Tesla',
+                symbol: 'TSLA',
+                exchange: 'NASDAQ',
+                currentPrice: '$395.23', // Matches the image
+                priceWhenBought: '$0.00',
+                owner: 'N/A'
+            },
+            'AAPL': {
+                company: 'Apple',
+                symbol: 'AAPL',
+                exchange: 'NASDAQ',
+                currentPrice: '$180.50',
+                priceWhenBought: '$100.00',
+                owner: 'User A'
+            },
+            'MSFT': {
+                company: 'Microsoft',
+                symbol: 'MSFT',
+                exchange: 'NASDAQ',
+                currentPrice: '$420.10',
+                priceWhenBought: '$150.00',
+                owner: 'User B'
+            },
+            'GOOGL': {
+                company: 'Google',
+                symbol: 'GOOGL',
+                exchange: 'NASDAQ',
+                currentPrice: '$145.75',
+                priceWhenBought: '$120.00',
+                owner: 'User C'
+            },
+            'AMZN': {
+                company: 'Amazon',
+                symbol: 'AMZN',
+                exchange: 'NASDAQ',
+                currentPrice: '$185.30',
+                priceWhenBought: '$90.00',
+                owner: 'User D'
+            },
+            // Add more mock data here
+            'META': { company: 'Meta', symbol: 'META', exchange: 'NASDAQ', currentPrice: '$480.25', priceWhenBought: '$200.00', owner: 'User E' },
+            'NFLX': { company: 'Netflix', symbol: 'NFLX', exchange: 'NASDAQ', currentPrice: '$650.90', priceWhenBought: '$350.00', owner: 'User F' },
+            'NVDA': { company: 'NVIDIA', symbol: 'NVDA', exchange: 'NASDAQ', currentPrice: '$950.88', priceWhenBought: '$500.00', owner: 'User G' },
+        };
+        // ----------------------------------------------------
+        
+        return mockData[symbol];
+    }
+
+    function updateStockInfo(data) {
+        document.getElementById('companyName').textContent = data.company;
+        document.getElementById('symbol').textContent = data.symbol;
+        document.getElementById('exchange').textContent = data.exchange;
+        document.getElementById('currentPrice').textContent = data.currentPrice;
+        document.getElementById('priceWhenBought').textContent = data.priceWhenBought;
+        document.getElementById('owner').textContent = data.owner;
+    }
+
+    function backToWelcome() {
+        window.location.href = 'welcome.html';
+    }
+</script>
+
+</body>
+</html>
