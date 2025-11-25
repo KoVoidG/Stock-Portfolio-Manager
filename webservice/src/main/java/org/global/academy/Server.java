@@ -2,6 +2,8 @@ package org.global.academy;
 
 import java.util.Map;
 import java.util.Random;
+import java.util.List;
+import java.util.ArrayList;
 
 import com.google.gson.Gson;
 
@@ -68,8 +70,7 @@ public class Server {
                     "symbol", appleStock.getsymbol(),
                     "company_name", appleStock.getcompany_Name(),
                     "stock_exchange", appleStock.getStock(),
-                    "current_price", appleStock.getPrice()
-            ));
+                    "current_price", appleStock.getPrice()));
         });
 
         // API endpoint for login
@@ -90,6 +91,71 @@ public class Server {
         // Portfolio instance to manage holdings
         Portfolio portfolio = new Portfolio();
 
+        // Pre-populate a few well-known stocks. Quantities start at 0.
+        List<Stock> known = new ArrayList<>();
+        known.add(new Stock("Apple Inc.", "AAPL", "NASDAQ", 0.0));
+        known.add(new Stock("Alphabet Inc.", "GOOGL", "NASDAQ", 0.0));
+        known.add(new Stock("Microsoft Corporation", "MSFT", "NASDAQ", 0.0));
+        known.add(new Stock("Amazon.com, Inc.", "AMZN", "NASDAQ", 0.0));
+        known.add(new Stock("Tesla, Inc.", "TSLA", "NASDAQ", 0.0));
+
+        // Try fetching today's price for each known stock and add to portfolio
+        for (Stock s : known) {
+            double price = Stock.fetchTodaysPrice(s.getsymbol());
+            if (price < 0) {
+                // fallback: small random price so UI can still show something
+                price = 50 + rand.nextDouble() * 150; // $50 - $200
+            }
+            s.setPrice(price);
+            portfolio.addStock(s, 0);
+        }
+
+        // Endpoint to fetch a single stock's current price and info
+        get("/stock/:symbol", (req, res) -> {
+            res.type("application/json");
+            String symbol = req.params("symbol");
+            if (symbol == null || symbol.isEmpty()) {
+                res.status(400);
+                return gson.toJson(new ErrorResponse("Missing symbol"));
+            }
+            String up = symbol.toUpperCase();
+            // Lookup known details from portfolio if available
+            Stock existing = portfolio.getStock(up);
+            String company = existing == null ? up : existing.getcompany_Name();
+            String exchange = existing == null ? "" : existing.getStock();
+
+            double price = Stock.fetchTodaysPrice(up);
+            if (price < 0) {
+                res.status(500);
+                return gson.toJson(new ErrorResponse("Failed to fetch price for " + up));
+            }
+            Stock returnStock = new Stock(company, up, exchange, price);
+            return gson.toJson(Map.of(
+                    "symbol", returnStock.getsymbol(),
+                    "company_name", returnStock.getcompany_Name(),
+                    "stock_exchange", returnStock.getStock(),
+                    "current_price", returnStock.getPrice()));
+        });
+
+        // List known stocks (pre-populated) with latest prices
+        get("/stocks/known", (req, res) -> {
+            res.type("application/json");
+            List<Map<String, Object>> out = new ArrayList<>();
+            for (String sym : portfolio.getHoldings().keySet()) {
+                Stock s = portfolio.getStock(sym);
+                double price = Stock.fetchTodaysPrice(sym);
+                if (price < 0) {
+                    price = s == null ? 0.0 : s.getPrice();
+                }
+                out.add(Map.of(
+                        "symbol", sym,
+                        "company_name", s == null ? null : s.getcompany_Name(),
+                        "stock_exchange", s == null ? null : s.getStock(),
+                        "current_price", price));
+            }
+            return gson.toJson(out);
+        });
+
         // --- CRUD for stocks ---
         // List all holdings
         get("/api/stocks", (req, res) -> {
@@ -104,8 +170,7 @@ public class Server {
                         "company_name", s == null ? null : s.getcompany_Name(),
                         "stock_exchange", s == null ? null : s.getStock(),
                         "current_price", s == null ? null : s.getPrice(),
-                        "quantity", e.getValue()
-                );
+                        "quantity", e.getValue());
             }).toList());
         });
 
@@ -135,7 +200,9 @@ public class Server {
             Stock existing = portfolio.getStock(symbol);
             if (existing == null) {
                 // create new if details provided
-                Stock s = new Stock(usr.company_name == null ? symbol : usr.company_name, symbol, usr.stock_exchange == null ? "" : usr.stock_exchange, usr.current_price == null ? 0.0 : usr.current_price);
+                Stock s = new Stock(usr.company_name == null ? symbol : usr.company_name, symbol,
+                        usr.stock_exchange == null ? "" : usr.stock_exchange,
+                        usr.current_price == null ? 0.0 : usr.current_price);
                 portfolio.addStock(s, usr.quantity == null ? 0 : usr.quantity);
             } else {
                 if (usr.company_name != null) {
