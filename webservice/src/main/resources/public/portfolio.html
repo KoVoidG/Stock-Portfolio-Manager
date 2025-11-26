@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portfolio</title>
+  <style>
+    :root { --accent:#e74c3c; --muted:rgba(255,255,255,0.9); }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #74ABE2, #5563DE);
+      color: white;
+      padding: 36px 16px;
+    }
+
+    .wrap {
+      width: 100%;
+      max-width: 1100px;
+      background: rgba(255,255,255,0.06);
+      border-radius: 16px;
+      padding: 20px 28px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.35);
+      backdrop-filter: blur(6px);
+    }
+
+    header {
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom:18px;
+    }
+
+    .user {
+      display:flex;align-items:center;gap:12px;
+    }
+
+    .username {
+      font-weight:700;color:#fff;font-size:1.05rem;
+    }
+
+    .controls button {
+      background:var(--accent);border:none;padding:8px 14px;border-radius:18px;color:#fff;font-weight:700;cursor:pointer;margin-left:8px;
+      box-shadow:0 6px 14px rgba(0,0,0,0.25);
+    }
+
+    .main {
+      display:flex;gap:20px;flex-wrap:wrap;
+    }
+
+    .card { background: rgba(255,255,255,0.04); padding:16px; border-radius:12px; flex:1 1 360px; }
+
+    .add-stock label{display:block;font-weight:600;margin-bottom:8px;color:var(--muted);} 
+    select,input[type=number]{width:100%;padding:10px;border-radius:8px;border:none;margin-bottom:12px;font-size:1rem;box-sizing:border-box}
+    .add-stock button{width:100%;padding:10px;border-radius:8px;border:none;background:var(--accent);color:#fff;font-weight:700;cursor:pointer}
+
+    .large-value { font-size:2.1rem;font-weight:800;color:#fff;margin:6px 0; }
+
+    table { width:100%; border-collapse:collapse; color:#fff; }
+    th,td{ padding:10px 8px; text-align:left; border-bottom:1px solid rgba(255,255,255,0.06); font-size:0.95rem; }
+    th { font-weight:700; opacity:0.95; }
+
+    .sell-btn{ background:#a02a2a;border:none;color:#fff;padding:6px 10px;border-radius:8px;cursor:pointer }
+    .muted { color:rgba(255,255,255,0.85); font-weight:600 }
+
+    @media (max-width:880px){ .main{flex-direction:column} }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="user">
+        <div>
+          <div class="muted">Logged in as</div>
+          <div class="username" id="usernameDisplay">Guest</div>
+        </div>
+      </div>
+      <div class="controls">
+        <button id="backBtn">Back to Welcome</button>
+        <button id="logoutBtn">Logout</button>
+      </div>
+    </header>
+
+    <div class="main">
+      <section class="card add-stock" style="max-width:380px;">
+        <h3 style="margin-top:0;margin-bottom:10px">Add Stock</h3>
+        <label for="symbolSelect">Symbol</label>
+        <select id="symbolSelect">
+          <option value="AAPL">AAPL — Apple</option>
+          <option value="MSFT">MSFT — Microsoft</option>
+          <option value="GOOGL">GOOGL — Alphabet</option>
+          <option value="AMZN">AMZN — Amazon</option>
+          <option value="TSLA">TSLA — Tesla</option>
+          <option value="META">META — Meta</option>
+          <option value="NFLX">NFLX — Netflix</option>
+          <option value="NVDA">NVDA — Nvidia</option>
+        </select>
+
+        <label for="quantityInput">Quantity</label>
+        <input id="quantityInput" type="number" min="1" value="1">
+
+        <button id="buyBtn">Buy / Add</button>
+        <p id="buyStatus" style="margin-top:8px;font-size:0.95rem;color:rgba(255,255,255,0.9)"></p>
+      </section>
+
+      <section class="card" style="flex:2 1 540px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
+          <div>
+            <div class="muted">Total Portfolio Value</div>
+            <div class="large-value" id="totalValue">$0.00</div>
+          </div>
+          <div style="min-width:160px;text-align:right">
+            <div class="muted">Auto-refresh</div>
+            <div style="font-weight:700">Every 30s</div>
+          </div>
+        </div>
+
+        <div style="margin-top:12px;overflow:auto;max-height:520px;">
+          <table>
+            <thead>
+              <tr>
+                <th>Symbol</th>
+                <th>Company</th>
+                <th>Quantity</th>
+                <th>Price When Bought</th>
+                <th>Current Price</th>
+                <th>Total Value</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="holdingsBody">
+              <tr><td colspan="7" style="opacity:0.8">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    const usernameDisplay = document.getElementById('usernameDisplay');
+    const symbolSelect = document.getElementById('symbolSelect');
+    const quantityInput = document.getElementById('quantityInput');
+    const buyBtn = document.getElementById('buyBtn');
+    const buyStatus = document.getElementById('buyStatus');
+    const holdingsBody = document.getElementById('holdingsBody');
+    const totalValueEl = document.getElementById('totalValue');
+
+    // Display username from localStorage
+    usernameDisplay.textContent = localStorage.getItem('username') || 'Guest';
+
+    async function fetchStockInfo(sym) {
+        try {
+            const res = await fetch(`/stock/${sym}`);
+            if (!res.ok) throw new Error(`HTTP error! Status: ${res.status}`);
+            return await res.json();
+        } catch (e) {
+            console.error('Error fetching stock info:', e);
+            return null;
+        }
+    }
+
+    async function fetchHoldingsAndRender() {
+        try {
+            const res = await fetch('/api/stocks');
+            if (!res.ok) throw new Error(`HTTP error! Status: ${res.status}`);
+            const holdings = await res.json();
+
+            // Process holdings (array of objects)
+            let html = '';
+            let totalPortfolio = 0;
+            for (const r of holdings) {
+              const total = r.quantity * r.current_price;
+              totalPortfolio += total;
+              // Hardcoded solution: read the saved bought price from localStorage
+              // Key format: boughtPrice_<SYMBOL> (e.g. boughtPrice_AAPL)
+              // This is intentionally a simple/local workaround and not a robust persistence strategy.
+              const boughtKey = 'boughtPrice_' + r.symbol;
+              const boughtRaw = localStorage.getItem(boughtKey);
+              const boughtDisplay = boughtRaw ? ('$' + Number(boughtRaw).toFixed(2)) : '—';
+              html += `<tr>` +
+                  `<td>${escapeHtml(r.symbol)}</td>` +
+                  `<td>${escapeHtml(r.company_name)}</td>` +
+                  `<td>${r.quantity}</td>` +
+                  `<td>${boughtDisplay}</td>` +
+                  `<td>$${r.current_price.toFixed(2)}</td>` +
+                  `<td>$${total.toFixed(2)}</td>` +
+                  `<td><button class="sell-btn" data-symbol="${escapeHtmlAttr(r.symbol)}" data-quantity="${r.quantity}">Sell</button></td>` +
+                  `</tr>`;
+            }
+            holdingsBody.innerHTML = html;
+            totalValueEl.textContent = '$' + totalPortfolio.toFixed(2);
+
+            // Attach sell handlers — ask user how many shares to sell
+            document.querySelectorAll('.sell-btn').forEach(btn => {
+              btn.addEventListener('click', async (ev) => {
+                const el = ev.currentTarget;
+                const sym = el.getAttribute('data-symbol');
+                const available = Number(el.getAttribute('data-quantity')) || 0;
+                // Prompt for quantity to sell
+                const input = prompt(`Enter quantity to sell for ${sym} (available: ${available})`, String(available));
+                if (input === null) return; // user cancelled
+                const qty = parseInt(input, 10);
+                if (isNaN(qty) || qty <= 0) { alert('Please enter a valid positive integer quantity.'); return; }
+                // Optional: cap to available (server will remove if >= available)
+                if (qty > available) {
+                  if (!confirm(`You entered ${qty}, which is more than available (${available}). Sell all instead?`)) return;
+                }
+                try {
+                  el.disabled = true;
+                  const newQty = available - qty;
+                  
+                  if (newQty <= 0) {
+                    // Remove stock completely using DELETE endpoint
+                    const r = await fetch(`/api/stocks/${encodeURIComponent(sym)}/delete`, {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' }
+                    });
+                    if (!r.ok) {
+                      const text = await r.text();
+                      throw new Error(text || 'Server error');
+                    }
+                    // Remove localStorage bought price key
+                    try {
+                      localStorage.removeItem('boughtPrice_' + sym);
+                    } catch (e) {
+                      console.warn('Failed to remove boughtPrice key', e);
+                    }
+                  } else {
+                    // Update quantity using PUT endpoint
+                    const r = await fetch(`/api/stocks/${encodeURIComponent(sym)}`, {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ quantity: newQty })
+                    });
+                    if (!r.ok) {
+                      const text = await r.text();
+                      throw new Error(text || 'Server error');
+                    }
+                  }
+                  await fetchHoldingsAndRender();
+                } catch (e) {
+                  alert('Failed to sell: ' + (e.message || e));
+                } finally {
+                  el.disabled = false;
+                }
+              });
+            });
+        } catch (err) {
+            holdingsBody.innerHTML = '<tr><td colspan="7">Unable to load holdings</td></tr>';
+            totalValueEl.textContent = '$0.00';
+            console.error(err);
+        }
+    }
+
+    buyBtn.addEventListener('click', async () => {
+        const symbol = symbolSelect.value.trim().toUpperCase();
+        const qty = Number(quantityInput.value) || 0;
+        if (!symbol || qty <= 0) { buyStatus.textContent = 'Please choose a symbol and valid quantity.'; return; }
+        buyBtn.disabled = true; buyStatus.textContent = 'Fetching price...';
+        try {
+            const info = await fetchStockInfo(symbol);
+            if (!info) throw new Error('Failed to fetch stock info');
+            const payload = {
+                symbol: symbol,
+                company_name: info.company_name ?? symbol,
+                stock_exchange: info.stock_exchange ?? '',
+                current_price: Number(info.current_price) || 0,
+                quantity: qty
+            };
+            buyStatus.textContent = 'Posting purchase...';
+            const r = await fetch('/api/stocks', {
+                method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload)
+            });
+            if (!r.ok) {
+                const text = await r.text();
+                throw new Error(text || 'Server error');
+            }
+          // Save the exact price at purchase time into localStorage using a simple hardcoded key.
+          // Key format: boughtPrice_<SYMBOL> (e.g. boughtPrice_AAPL).
+          // Note: This is a quick/hardcoded localStorage solution for demo purposes only.
+          try {
+            localStorage.setItem('boughtPrice_' + symbol, String(payload.current_price));
+          } catch (e) {
+            console.warn('Failed to save bought price to localStorage', e);
+          }
+
+          buyStatus.textContent = 'Added successfully.';
+            quantityInput.value = '1';
+            await fetchHoldingsAndRender();
+        } catch (e) {
+            buyStatus.textContent = 'Error: ' + (e.message || e);
+            console.error(e);
+        } finally {
+            buyBtn.disabled = false;
+            setTimeout(()=>{ buyStatus.textContent = ''; }, 3500);
+        }
+    });
+
+    // Escape helpers
+    function escapeHtml(s){ if(s==null) return ''; return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+    function escapeHtmlAttr(s){ if(s==null) return ''; return String(s).replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+
+    // Back and logout
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+        localStorage.removeItem('username');
+        localStorage.removeItem('token');
+        // Clear all buy prices for the next login
+        const keysToRemove = [];
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key && key.startsWith('boughtPrice_')) {
+                keysToRemove.push(key);
+            }
+        }
+        keysToRemove.forEach(key => localStorage.removeItem(key));
+        window.location.href = 'login.html';
+    });
+    document.getElementById('backBtn').addEventListener('click', () => { window.location.href = 'welcome.html'; });
+
+    // Initial load + auto-refresh
+    fetchHoldingsAndRender();
+    const intervalId = setInterval(fetchHoldingsAndRender, 30000);
+
+    // Clean up on page unload
+    window.addEventListener('beforeunload', () => { clearInterval(intervalId); });
+</script>
+</body>
+</html>

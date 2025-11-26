@@ -43,12 +43,19 @@
       text-shadow: 0 0 10px rgba(255,255,255,0.6);
     }
 
+    .button-group {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
     button {
       background: #e74c3c;
       border: none;
       color: #fff;
       padding: 12px 30px;
-      margin: 10px;
+      margin: 0;
       border-radius: 30px;
       font-size: 1em;
       cursor: pointer;
@@ -66,42 +73,23 @@
 <body>
   <div class="container">
     <h2>Welcome, <span class="username" id="username"></span>!</h2>
-    <div>
+    <div class="button-group">
+      <button onclick="goPortfolio()">My Portfolio</button>
+      <button onclick="goStockInfo()">Stock Info</button>
       <button onclick="logout()">Logout</button>
-      <button onclick="goStocks()">Stocks</button>
     </div>
-    <p id="randomResult" style="margin-top:12px;color:#fff;font-weight:bold;"></p>
   </div>
 
+  <script src="common.js"></script>
   <script>
     // Display username stored in localStorage
     document.getElementById('username').textContent = localStorage.getItem('username') || 'Guest';
 
-    function logout() {
-      localStorage.removeItem('username');
-      localStorage.removeItem('token');
-      window.location.href = 'login.html';
+    function goPortfolio() {
+      window.location.href = 'portfolio.html';
     }
 
-    function goRandom() {
-      const out = document.getElementById('randomResult');
-      out.textContent = 'Loading...';
-      fetch('/random')
-        .then(r => {
-          if (!r.ok) throw new Error('Network response was not ok');
-          return r.json();
-        })
-        .then(data => {
-          // server returns { number: <int> }
-          out.textContent = 'Random number: ' + (data && data.number !== undefined ? data.number : JSON.stringify(data));
-        })
-        .catch(err => {
-          out.textContent = 'Failed to get random number';
-        });
-    }
-
-    function goStocks() {
-      // Navigate to the themed stock app page
+    function goStockInfo() {
       window.location.href = 'stock_app.html';
     }
   </script>

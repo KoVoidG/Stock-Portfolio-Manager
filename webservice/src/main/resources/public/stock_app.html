@@ -153,21 +153,19 @@
 </div>
 
 <script>
-    // ------------------- JavaScript Functionality -------------------
-    document.getElementById('fetchButton').addEventListener('click', function() {
+    document.getElementById('fetchButton').addEventListener('click', async function() {
         const selectElement = document.getElementById('stockSelect');
         const selectedSymbol = selectElement.value;
         const resultBox = document.getElementById('resultBox');
 
         if (selectedSymbol) {
-            const stockData = fetchStockData(selectedSymbol);
+            const stockData = await fetchStockData(selectedSymbol);
             
             if (stockData) {
                 updateStockInfo(stockData);
                 resultBox.style.display = 'block'; // Show the results
             } else {
-                // Should not happen with the mock data, but good practice
-                alert("Stock data not available for the selected symbol.");
+                alert("Failed to fetch stock data. Check console for details.");
                 resultBox.style.display = 'none';
             }
         } else {
@@ -176,61 +174,32 @@
         }
     });
 
-    /**
-     * Fetches mock stock data based on the selected symbol.
-     * In a real application, this would be an asynchronous API call.
-     */
-    function fetchStockData(symbol) {
-        // --- Mock Data Store matching the provided image/options ---
-        const mockData = {
-            'TSLA': {
-                company: 'Tesla',
-                symbol: 'TSLA',
-                exchange: 'NASDAQ',
-                currentPrice: '$395.23', // Matches the image
-                priceWhenBought: '$0.00',
-                owner: 'N/A'
-            },
-            'AAPL': {
-                company: 'Apple',
-                symbol: 'AAPL',
-                exchange: 'NASDAQ',
-                currentPrice: '$180.50',
-                priceWhenBought: '$100.00',
-                owner: 'User A'
-            },
-            'MSFT': {
-                company: 'Microsoft',
-                symbol: 'MSFT',
-                exchange: 'NASDAQ',
-                currentPrice: '$420.10',
-                priceWhenBought: '$150.00',
-                owner: 'User B'
-            },
-            'GOOGL': {
-                company: 'Google',
-                symbol: 'GOOGL',
-                exchange: 'NASDAQ',
-                currentPrice: '$145.75',
-                priceWhenBought: '$120.00',
-                owner: 'User C'
-            },
-            'AMZN': {
-                company: 'Amazon',
-                symbol: 'AMZN',
-                exchange: 'NASDAQ',
-                currentPrice: '$185.30',
-                priceWhenBought: '$90.00',
-                owner: 'User D'
-            },
-            // Add more mock data here
-            'META': { company: 'Meta', symbol: 'META', exchange: 'NASDAQ', currentPrice: '$480.25', priceWhenBought: '$200.00', owner: 'User E' },
-            'NFLX': { company: 'Netflix', symbol: 'NFLX', exchange: 'NASDAQ', currentPrice: '$650.90', priceWhenBought: '$350.00', owner: 'User F' },
-            'NVDA': { company: 'NVIDIA', symbol: 'NVDA', exchange: 'NASDAQ', currentPrice: '$950.88', priceWhenBought: '$500.00', owner: 'User G' },
-        };
-        // ----------------------------------------------------
-        
-        return mockData[symbol];
+    async function fetchStockData(symbol) {
+        try {
+            const res = await fetch(`/stock/${symbol}`);
+            if (!res.ok) {
+                throw new Error(`HTTP error! Status: ${res.status}`);
+            }
+            const data = await res.json();
+            // Read the bought price saved by portfolio.html from localStorage.
+            // Key format: boughtPrice_<SYMBOL> (e.g. boughtPrice_AAPL).
+            // This uses the localStorage buy price saved when user clicked "Buy / Add" in the portfolio UI.
+            const boughtKey = 'boughtPrice_' + symbol;
+            const boughtRaw = localStorage.getItem(boughtKey);
+            const priceWhenBought = boughtRaw ? (`$${Number(boughtRaw).toFixed(2)}`) : `<span style="color:#ff6b5b; font-style:italic;">Not owned</span>`;
+
+            return {
+                company: data.company_name || symbol,
+                symbol: data.symbol,
+                exchange: data.stock_exchange || 'N/A',
+                currentPrice: `$${data.current_price.toFixed(2)}`,
+                priceWhenBought: priceWhenBought,
+                owner: localStorage.getItem('username') || 'N/A' // Assuming login sets this
+            };
+        } catch (e) {
+            console.error('Error fetching stock data:', e);
+            return null;
+        }
     }
 
     function updateStockInfo(data) {
@@ -238,7 +207,8 @@
         document.getElementById('symbol').textContent = data.symbol;
         document.getElementById('exchange').textContent = data.exchange;
         document.getElementById('currentPrice').textContent = data.currentPrice;
-        document.getElementById('priceWhenBought').textContent = data.priceWhenBought;
+        // Use innerHTML because priceWhenBought may contain styled HTML when not owned.
+        document.getElementById('priceWhenBought').innerHTML = data.priceWhenBought;
         document.getElementById('owner').textContent = data.owner;
     }
 
