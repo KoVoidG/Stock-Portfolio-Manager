@@ -212,8 +212,32 @@
         document.getElementById('owner').textContent = data.owner;
     }
 
+    function getQueryParams() {
+        const params = new URLSearchParams(window.location.search);
+        return {
+            token: params.get('token'),
+            username: params.get('username')
+        };
+    }
+
+    function checkAuth() {
+        const { token, username } = getQueryParams();
+        if (!token || !username) {
+            window.location.href = 'login.html';
+            return false;
+        }
+        return true;
+    }
+
+    // Check authentication on page load
+    if (!checkAuth()) {
+        throw new Error('Auth failed');
+    }
+
+    const { token, username } = getQueryParams();
+
     function backToWelcome() {
-        window.location.href = 'welcome.html';
+        window.location.href = `welcome.html?token=${encodeURIComponent(token)}&username=${encodeURIComponent(username)}`;
     }
 </script>
 

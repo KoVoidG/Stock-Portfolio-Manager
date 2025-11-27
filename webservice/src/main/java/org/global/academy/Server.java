@@ -1,9 +1,11 @@
 package org.global.academy;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
-import java.util.List;
-import java.util.ArrayList;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.google.gson.Gson;
 
@@ -12,17 +14,31 @@ import static spark.Spark.get;
 import static spark.Spark.options;
 import static spark.Spark.port;
 import static spark.Spark.post;
-import static spark.Spark.staticFiles;
 
 public class Server {
 
+    private static final String JWT_SECRET = "your-secret-key-change-this-in-production";
+    private static final long JWT_EXPIRATION = 24 * 60 * 60 * 1000; // 24 hours
+    private static final Map<String, String> validTokens = new ConcurrentHashMap<>(); // token -> username
+
     public static void main(String[] args) {
+        try {
+            mainImpl(args);
+        } catch (Exception e) {
+            System.err.println("FATAL ERROR: Server crashed!");
+            System.err.println("Exception: " + e.getClass().getName());
+            System.err.println("Message: " + e.getMessage());
+            e.printStackTrace();
+            System.exit(1);
+        }
+    }
+
+    private static void mainImpl(String[] args) {
         port(8080);
         Random rand = new Random();
 
-        // Serve static files from src/main/resources/public
-        staticFiles.location("/public");
-
+        // DO NOT serve static files publicly - we control access through routes
+        // staticFiles.location("/public");
         // Simple CORS setup
         before((request, response) -> {
             response.header("Access-Control-Allow-Origin", "*");
@@ -44,10 +60,105 @@ public class Server {
 
         Gson gson = new Gson();
 
-        // Default route: redirect root to index.html
+        // Default route: serve index.html
         get("/", (req, res) -> {
-            res.redirect("/index.html");
-            return null;
+            try {
+                res.type("text/html");
+                return readFileContent("public/index.html");
+            } catch (Exception e) {
+                res.status(500);
+                return "Error loading page: " + e.getMessage();
+            }
+        });
+
+        // Public pages (no auth required)
+        get("/index.html", (req, res) -> {
+            try {
+                res.type("text/html");
+                return readFileContent("public/index.html");
+            } catch (Exception e) {
+                res.status(500);
+                return "Error loading page: " + e.getMessage();
+            }
+        });
+
+        get("/login.html", (req, res) -> {
+            try {
+                res.type("text/html");
+                return readFileContent("public/login.html");
+            } catch (Exception e) {
+                res.status(500);
+                return "Error loading page: " + e.getMessage();
+            }
+        });
+
+        // Serve static assets (images, CSS, etc.) - no auth required
+        get("/logo.png", (req, res) -> {
+            try {
+                res.type("image/png");
+                ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+                java.io.InputStream input = classLoader.getResourceAsStream("public/logo.png");
+                if (input == null) {
+                    res.status(404);
+                    return "Logo not found";
+                }
+                byte[] imageBytes = input.readAllBytes();
+                res.raw().getOutputStream().write(imageBytes);
+                res.raw().getOutputStream().flush();
+                return "";
+            } catch (Exception e) {
+                res.status(500);
+                return "Error loading logo: " + e.getMessage();
+            }
+        });
+
+        // Protected pages - server-side auth check required
+        get("/welcome.html", (req, res) -> {
+            String token = req.queryParams("token");
+            String username = req.queryParams("username");
+            if (token == null || token.isEmpty() || username == null || username.isEmpty() || !validTokens.containsKey(token) || !validTokens.get(token).equals(username)) {
+                res.redirect("/login.html");
+                return null;
+            }
+            try {
+                res.type("text/html");
+                return readFileContent("public/welcome.html");
+            } catch (Exception e) {
+                res.status(500);
+                return "Error loading page: " + e.getMessage();
+            }
+        });
+
+        get("/portfolio.html", (req, res) -> {
+            String token = req.queryParams("token");
+            String username = req.queryParams("username");
+            if (token == null || token.isEmpty() || username == null || username.isEmpty() || !validTokens.containsKey(token) || !validTokens.get(token).equals(username)) {
+                res.redirect("/login.html");
+                return null;
+            }
+            try {
+                res.type("text/html");
+                return readFileContent("public/portfolio.html");
+            } catch (Exception e) {
+                res.status(500);
+                return "Error loading page: " + e.getMessage();
+            }
+        });
+
+        get("/stock_app.html", (req, res) -> {
+            String token = req.queryParams("token");
+            String username = req.queryParams("username");
+            if (token == null || token.isEmpty() || username == null || username.isEmpty() || !validTokens.containsKey(token) || !validTokens.get(token).equals(username)) {
+                res.redirect("/login.html");
+                return null;
+            }
+            try {
+                res.type("text/html");
+                return readFileContent("public/stock_app.html");
+            } catch (Exception e) {
+                res.status(500);
+                return "Error loading page: " + e.getMessage();
+            }
         });
 
         // Random number
@@ -80,7 +191,10 @@ public class Server {
 
             if ("alice".equals(lr.username) && "secret".equals(lr.password)) {
                 res.type("application/json");
-                return gson.toJson(new LoginResponse("a-fake-token", lr.username));
+                String token = UUID.randomUUID().toString();
+                validTokens.put(token, lr.username); // Store the valid token
+                System.out.println("Login successful for user: " + lr.username + ", token: " + token);
+                return gson.toJson(new LoginResponse(token, lr.username));
             } else {
                 res.status(401);
                 res.type("application/json");
@@ -88,8 +202,25 @@ public class Server {
             }
         });
 
+        // API endpoint to check if user is authenticated
+        get("/api/auth/check", (req, res) -> {
+            res.type("application/json");
+            String token = req.headers("Authorization");
+            String username = req.headers("X-Username");
+
+            if (token != null && !token.isEmpty() && validTokens.containsKey(token) && username != null && !username.isEmpty() && validTokens.get(token).equals(username)) {
+                return gson.toJson(Map.of("authenticated", true, "username", username));
+            } else {
+                res.status(401);
+                return gson.toJson(Map.of("authenticated", false));
+            }
+        });
+
         // Portfolio instance to manage holdings
         Portfolio portfolio = new Portfolio();
+
+        // Load persisted portfolio data
+        PortfolioPersistence.loadPortfolio(portfolio);
 
         // Pre-populate a few well-known stocks. Quantities start at 0.
         List<Stock> known = new ArrayList<>();
@@ -98,16 +229,33 @@ public class Server {
         known.add(new Stock("Microsoft Corporation", "MSFT", "NASDAQ", 0.0));
         known.add(new Stock("Amazon.com, Inc.", "AMZN", "NASDAQ", 0.0));
         known.add(new Stock("Tesla, Inc.", "TSLA", "NASDAQ", 0.0));
+        known.add(new Stock("Meta Platforms, Inc.", "META", "NASDAQ", 0.0));
+        known.add(new Stock("Netflix, Inc.", "NFLX", "NASDAQ", 0.0));
+        known.add(new Stock("NVIDIA Corporation", "NVDA", "NASDAQ", 0.0));
 
-        // Try fetching today's price for each known stock and add to portfolio
-        for (Stock s : known) {
-            double price = Stock.fetchTodaysPrice(s.getsymbol());
-            if (price < 0) {
-                // fallback: small random price so UI can still show something
-                price = 50 + rand.nextDouble() * 150; // $50 - $200
+        // Try fetching today's price for each known stock and add to portfolio if not already there
+        try {
+            for (Stock s : known) {
+                if (portfolio.getStock(s.getsymbol()) == null) {
+                    // Not yet in portfolio, add it
+                    try {
+                        double price = Stock.fetchTodaysPrice(s.getsymbol());
+                        if (price < 0) {
+                            // fallback: small random price so UI can still show something
+                            price = 50 + rand.nextDouble() * 150; // $50 - $200
+                        }
+                        s.setPrice(price);
+                        portfolio.addStock(s, 0);
+                    } catch (Exception e) {
+                        System.err.println("Failed to fetch price for " + s.getsymbol() + ": " + e.getMessage());
+                        // Use fallback price
+                        s.setPrice(50 + rand.nextDouble() * 150);
+                        portfolio.addStock(s, 0);
+                    }
+                }
             }
-            s.setPrice(price);
-            portfolio.addStock(s, 0);
+        } catch (Exception e) {
+            System.err.println("Error during stock initialization: " + e.getMessage());
         }
 
         // Endpoint to fetch a single stock's current price and info
@@ -165,11 +313,19 @@ public class Server {
             return gson.toJson(holdings.entrySet().stream().map(e -> {
                 String sym = e.getKey();
                 Stock s = portfolio.getStock(sym);
+                // Fetch current price dynamically
+                double currentPrice = Stock.fetchTodaysPrice(sym);
+                if (currentPrice < 0) {
+                    currentPrice = s == null ? 0.0 : s.getPrice();
+                }
+                // Get bought price from stock object
+                double boughtPrice = s == null ? 0.0 : s.getPrice();
                 return Map.of(
                         "symbol", sym,
                         "company_name", s == null ? null : s.getcompany_Name(),
                         "stock_exchange", s == null ? null : s.getStock(),
-                        "current_price", s == null ? null : s.getPrice(),
+                        "bought_price", boughtPrice,
+                        "current_price", currentPrice,
                         "quantity", e.getValue());
             }).toList());
         });
@@ -184,6 +340,7 @@ public class Server {
             }
             Stock s = new Stock(nsr.company_name, nsr.symbol, nsr.stock_exchange, nsr.current_price);
             portfolio.addStock(s, nsr.quantity);
+            PortfolioPersistence.savePortfolio(portfolio);
             res.status(201);
             return gson.toJson(Map.of("status", "ok"));
         });
@@ -220,6 +377,7 @@ public class Server {
                     portfolio.addStock(existing, usr.quantity);
                 }
             }
+            PortfolioPersistence.savePortfolio(portfolio);
             return gson.toJson(Map.of("status", "ok"));
         });
 
@@ -232,6 +390,7 @@ public class Server {
                 return gson.toJson(new ErrorResponse("Invalid symbol"));
             }
             portfolio.removeStock(symbol, Integer.MAX_VALUE);
+            PortfolioPersistence.savePortfolio(portfolio);
             return gson.toJson(Map.of("status", "deleted"));
         });
     }
@@ -259,6 +418,18 @@ public class Server {
 
         ErrorResponse(String e) {
             error = e;
+        }
+    }
+
+    private static String readFileContent(String resourcePath) throws Exception {
+        // Read from classpath resources
+        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+        java.io.InputStream input = classLoader.getResourceAsStream(resourcePath);
+        if (input == null) {
+            throw new Exception("Resource not found: " + resourcePath);
+        }
+        try (input) {
+            return new String(input.readAllBytes());
         }
     }
 

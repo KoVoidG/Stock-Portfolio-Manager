@@ -120,9 +120,8 @@
         if (res.status === 200) {
           try {
             const data = JSON.parse(text);
-            localStorage.setItem('username', data.username);
-            localStorage.setItem('token', data.token);
-            window.location.href = 'welcome.html';
+            // Redirect to welcome with token and username as query parameters
+            window.location.href = `welcome.html?token=${encodeURIComponent(data.token)}&username=${encodeURIComponent(data.username)}`;
           } catch (e) {
             output.textContent += '\nError parsing response.';
           }

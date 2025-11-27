@@ -82,15 +82,41 @@
 
   <script src="common.js"></script>
   <script>
-    // Display username stored in localStorage
-    document.getElementById('username').textContent = localStorage.getItem('username') || 'Guest';
+    // Get token and username from query parameters
+    function getQueryParams() {
+      const params = new URLSearchParams(window.location.search);
+      return {
+        token: params.get('token'),
+        username: params.get('username')
+      };
+    }
+
+    // Check auth - just verify we have token and username in URL
+    function checkAuth() {
+      const { token, username } = getQueryParams();
+      if (!token || !username) {
+        window.location.href = 'login.html';
+        return false;
+      }
+      return true;
+    }
+
+    // Initialize page
+    if (!checkAuth()) {
+      throw new Error('Auth failed');
+    }
+
+    const { token, username } = getQueryParams();
+    
+    // Display username
+    document.getElementById('username').textContent = username || 'Guest';
 
     function goPortfolio() {
-      window.location.href = 'portfolio.html';
+      window.location.href = `portfolio.html?token=${encodeURIComponent(token)}&username=${encodeURIComponent(username)}`;
     }
 
     function goStockInfo() {
-      window.location.href = 'stock_app.html';
+      window.location.href = `stock_app.html?token=${encodeURIComponent(token)}&username=${encodeURIComponent(username)}`;
     }
   </script>
 </body>
