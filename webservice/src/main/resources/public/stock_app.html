@@ -181,12 +181,14 @@
                 throw new Error(`HTTP error! Status: ${res.status}`);
             }
             const data = await res.json();
-            // Read the bought price saved by portfolio.html from localStorage.
-            // Key format: boughtPrice_<SYMBOL> (e.g. boughtPrice_AAPL).
-            // This uses the localStorage buy price saved when user clicked "Buy / Add" in the portfolio UI.
-            const boughtKey = 'boughtPrice_' + symbol;
-            const boughtRaw = localStorage.getItem(boughtKey);
-            const priceWhenBought = boughtRaw ? (`$${Number(boughtRaw).toFixed(2)}`) : `<span style="color:#ff6b5b; font-style:italic;">Not owned</span>`;
+            
+            // Use bought_price and quantity from server response
+            let priceWhenBought;
+            if (data.quantity && data.quantity > 0) {
+                priceWhenBought = `$${Number(data.bought_price).toFixed(2)}`;
+            } else {
+                priceWhenBought = `<span style="color:#ff6b5b; font-style:italic;">Not owned</span>`;
+            }
 
             return {
                 company: data.company_name || symbol,
@@ -238,6 +240,34 @@
 
     function backToWelcome() {
         window.location.href = `welcome.html?token=${encodeURIComponent(token)}&username=${encodeURIComponent(username)}`;
+    }
+
+    async function handleBuyStock(symbol, quantity) {
+        const response = await fetch('/api/stocks/buy', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ symbol, quantity })
+        });
+        if (response.ok) {
+            alert('Stock bought successfully!');
+            // Optionally refresh or update UI here
+        } else {
+            alert('Failed to buy stock.');
+        }
+    }
+
+    async function handleSellStock(symbol, quantity) {
+        const response = await fetch('/api/stocks/sell', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ symbol, quantity })
+        });
+        if (response.ok) {
+            alert('Stock sold successfully!');
+            // Optionally refresh or update UI here
+        } else {
+            alert('Failed to sell stock.');
+        }
     }
 </script>
 

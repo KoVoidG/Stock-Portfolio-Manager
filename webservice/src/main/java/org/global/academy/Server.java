@@ -116,7 +116,8 @@ public class Server {
         get("/welcome.html", (req, res) -> {
             String token = req.queryParams("token");
             String username = req.queryParams("username");
-            if (token == null || token.isEmpty() || username == null || username.isEmpty() || !validTokens.containsKey(token) || !validTokens.get(token).equals(username)) {
+            if (token == null || token.isEmpty() || username == null || username.isEmpty()
+                    || !validTokens.containsKey(token) || !validTokens.get(token).equals(username)) {
                 res.redirect("/login.html");
                 return null;
             }
@@ -132,7 +133,8 @@ public class Server {
         get("/portfolio.html", (req, res) -> {
             String token = req.queryParams("token");
             String username = req.queryParams("username");
-            if (token == null || token.isEmpty() || username == null || username.isEmpty() || !validTokens.containsKey(token) || !validTokens.get(token).equals(username)) {
+            if (token == null || token.isEmpty() || username == null || username.isEmpty()
+                    || !validTokens.containsKey(token) || !validTokens.get(token).equals(username)) {
                 res.redirect("/login.html");
                 return null;
             }
@@ -148,7 +150,8 @@ public class Server {
         get("/stock_app.html", (req, res) -> {
             String token = req.queryParams("token");
             String username = req.queryParams("username");
-            if (token == null || token.isEmpty() || username == null || username.isEmpty() || !validTokens.containsKey(token) || !validTokens.get(token).equals(username)) {
+            if (token == null || token.isEmpty() || username == null || username.isEmpty()
+                    || !validTokens.containsKey(token) || !validTokens.get(token).equals(username)) {
                 res.redirect("/login.html");
                 return null;
             }
@@ -208,7 +211,8 @@ public class Server {
             String token = req.headers("Authorization");
             String username = req.headers("X-Username");
 
-            if (token != null && !token.isEmpty() && validTokens.containsKey(token) && username != null && !username.isEmpty() && validTokens.get(token).equals(username)) {
+            if (token != null && !token.isEmpty() && validTokens.containsKey(token) && username != null
+                    && !username.isEmpty() && validTokens.get(token).equals(username)) {
                 return gson.toJson(Map.of("authenticated", true, "username", username));
             } else {
                 res.status(401);
@@ -233,7 +237,8 @@ public class Server {
         known.add(new Stock("Netflix, Inc.", "NFLX", "NASDAQ", 0.0));
         known.add(new Stock("NVIDIA Corporation", "NVDA", "NASDAQ", 0.0));
 
-        // Try fetching today's price for each known stock and add to portfolio if not already there
+        // Try fetching today's price for each known stock and add to portfolio if not
+        // already there
         try {
             for (Stock s : known) {
                 if (portfolio.getStock(s.getsymbol()) == null) {
@@ -272,17 +277,28 @@ public class Server {
             String company = existing == null ? up : existing.getcompany_Name();
             String exchange = existing == null ? "" : existing.getStock();
 
+            // Get quantity and bought price if owned
+            int quantity = 0;
+            double boughtPrice = 0.0;
+            if (existing != null && portfolio.getHoldings().containsKey(up)) {
+                quantity = portfolio.getHoldings().get(up);
+                boughtPrice = existing.getPrice(); // In this simple model, stored price is bought price
+            }
+
             double price = Stock.fetchTodaysPrice(up);
             if (price < 0) {
                 res.status(500);
                 return gson.toJson(new ErrorResponse("Failed to fetch price for " + up));
             }
-            Stock returnStock = new Stock(company, up, exchange, price);
+
+            // We return a map to include extra fields not in Stock class
             return gson.toJson(Map.of(
-                    "symbol", returnStock.getsymbol(),
-                    "company_name", returnStock.getcompany_Name(),
-                    "stock_exchange", returnStock.getStock(),
-                    "current_price", returnStock.getPrice()));
+                    "symbol", up,
+                    "company_name", company,
+                    "stock_exchange", exchange,
+                    "current_price", price,
+                    "bought_price", boughtPrice,
+                    "quantity", quantity));
         });
 
         // List known stocks (pre-populated) with latest prices
