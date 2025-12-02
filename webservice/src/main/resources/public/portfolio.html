@@ -35,7 +35,7 @@
 
     .wrap {
       width: 100%;
-      max-width: 1200px;
+      max-width: 1400px;
       background: rgba(255, 255, 255, 0.95);
       border-radius: 25px;
       padding: 40px 35px;
@@ -639,6 +639,24 @@
         width: 95%;
       }
     }
+
+    /* Profit/Loss specific styles */
+    .profit {
+      color: #28a745; /* Green for profit */
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+
+    .loss {
+      color: #dc3545; /* Red for loss */
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+    
+    .price-change-zero {
+      color: var(--text-light); /* Neutral color for zero change */
+      font-weight: 600;
+    }
   </style>
 </head>
 
@@ -703,6 +721,7 @@
                 <th>Price When Bought</th>
                 <th>Current Price</th>
                 <th>Total Value</th>
+                <th>Profit/Loss</th>
                 <th></th>
               </tr>
             </thead>
@@ -1013,6 +1032,28 @@
         for (const r of allStocks) {
           const total = r.quantity * r.current_price;
           totalPortfolio += total;
+
+          // Profit/Loss Calculation Logic
+          let profitLossTotal = 0;
+          let profitLossDisplay = '—';
+          let profitLossClass = 'price-change-zero';
+
+          if (r.quantity > 0 && r.bought_price) {
+            const boughtPrice = Number(r.bought_price);
+            const currentPrice = r.current_price;
+            const quantity = r.quantity;
+            
+            // P/L = (Current Price - Bought Price) * Quantity
+            profitLossTotal = (currentPrice - boughtPrice) * quantity;
+            profitLossDisplay = '$' + profitLossTotal.toFixed(2);
+            
+            if (profitLossTotal > 0) {
+              profitLossClass = 'profit';
+            } else if (profitLossTotal < 0) {
+              profitLossClass = 'loss';
+            }
+          }
+
           // Use bought_price from API if available, otherwise show "—"
           const boughtDisplay = r.bought_price && r.quantity > 0 ? ('$' + Number(r.bought_price).toFixed(2)) : '—';
           const isDisabled = r.quantity <= 0;
@@ -1023,6 +1064,7 @@
             `<td>${boughtDisplay}</td>` +
             `<td>$${r.current_price.toFixed(2)}</td>` +
             `<td>$${total.toFixed(2)}</td>` +
+            `<td class="${profitLossClass}">${profitLossDisplay}</td>` +
             `<td><button class="sell-btn" data-symbol="${escapeHtmlAttr(r.symbol)}" data-quantity="${r.quantity}" data-price="${r.current_price}" ${isDisabled ? 'disabled' : ''}>Sell</button></td>` +
             `</tr>`;
         }
