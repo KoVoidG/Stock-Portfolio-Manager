@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -39,6 +40,7 @@
                 opacity: 0;
                 transform: translateY(30px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -202,7 +204,8 @@
             font-size: 1.1em;
         }
 
-        #fetchButton, .back-button {
+        #fetchButton,
+        .back-button {
             width: 100%;
             padding: 14px;
             background: linear-gradient(135deg, #D4845C, #C97346);
@@ -218,13 +221,15 @@
             letter-spacing: 0.5px;
         }
 
-        #fetchButton:hover, .back-button:hover {
+        #fetchButton:hover,
+        .back-button:hover {
             background: linear-gradient(135deg, #E8956C, #DB855C);
             transform: translateY(-2px);
             box-shadow: 0 12px 30px rgba(212, 132, 92, 0.4);
         }
 
-        #fetchButton:active, .back-button:active {
+        #fetchButton:active,
+        .back-button:active {
             transform: translateY(0);
         }
 
@@ -250,6 +255,7 @@
                 opacity: 0;
                 transform: translateY(10px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -324,233 +330,216 @@
         }
     </style>
 </head>
+
 <body>
 
-<div class="stock-container">
-    <div class="header-flex">
-        <h2>Stock Info</h2>
-        <button class="back-button" onclick="backToWelcome()">← Back</button>
-    </div>
-
-    <div class="selection-form">
-        <label for="stockSelect">Select a Stock:</label>
-        <div class="stock-custom-dropdown-wrapper">
-            <select id="stockSelect">
-                <option value="">-- Choose a stock --</option>
-                <option value="AAPL">Apple (AAPL)</option>
-                <option value="MSFT">Microsoft (MSFT)</option>
-                <option value="GOOGL">Google (GOOGL)</option>
-                <option value="AMZN">Amazon (AMZN)</option>
-                <option value="TSLA">Tesla (TSLA)</option>
-                <option value="META">Meta (META)</option>
-                <option value="NFLX">Netflix (NFLX)</option>
-                <option value="NVDA">NVIDIA (NVDA)</option>
-            </select>
+    <div class="stock-container">
+        <div class="header-flex">
+            <h2>Stock Info</h2>
+            <button class="back-button" onclick="backToWelcome()">← Back</button>
         </div>
-        <button id="fetchButton">Fetch Stock Info</button>
+
+        <div class="selection-form">
+            <label for="stockSelect">Select a Stock:</label>
+            <div class="stock-custom-dropdown-wrapper">
+                <select id="stockSelect">
+                    <option value="">-- Choose a stock --</option>
+                    <option value="AAPL">Apple (AAPL)</option>
+                    <option value="MSFT">Microsoft (MSFT)</option>
+                    <option value="GOOGL">Google (GOOGL)</option>
+                    <option value="AMZN">Amazon (AMZN)</option>
+                    <option value="TSLA">Tesla (TSLA)</option>
+                    <option value="META">Meta (META)</option>
+                    <option value="NFLX">Netflix (NFLX)</option>
+                    <option value="NVDA">NVIDIA (NVDA)</option>
+                </select>
+            </div>
+            <button id="fetchButton">Fetch Stock Info</button>
+        </div>
+
+        <div id="resultBox" class="result-box" style="display: none;">
+            <span class="success-message">✓ Stock Information</span>
+            <table>
+                <tr>
+                    <td>Company:</td>
+                    <td id="companyName"></td>
+                </tr>
+                <tr>
+                    <td>Symbol:</td>
+                    <td id="symbol"></td>
+                </tr>
+                <tr>
+                    <td>Exchange:</td>
+                    <td id="exchange"></td>
+                </tr>
+                <tr>
+                    <td>Current Price:</td>
+                    <td id="currentPrice"></td>
+                </tr>
+                <tr>
+                    <td>Price When Bought:</td>
+                    <td id="priceWhenBought"></td>
+                </tr>
+                <tr>
+                    <td>Owner:</td>
+                    <td id="owner"></td>
+                </tr>
+            </table>
+        </div>
     </div>
 
-    <div id="resultBox" class="result-box" style="display: none;">
-        <span class="success-message">✓ Stock Information</span>
-        <table>
-            <tr>
-                <td>Company:</td>
-                <td id="companyName"></td>
-            </tr>
-            <tr>
-                <td>Symbol:</td>
-                <td id="symbol"></td>
-            </tr>
-            <tr>
-                <td>Exchange:</td>
-                <td id="exchange"></td>
-            </tr>
-            <tr>
-                <td>Current Price:</td>
-                <td id="currentPrice"></td>
-            </tr>
-            <tr>
-                <td>Price When Bought:</td>
-                <td id="priceWhenBought"></td>
-            </tr>
-            <tr>
-                <td>Owner:</td>
-                <td id="owner"></td>
-            </tr>
-        </table>
-    </div>
-</div>
+    <script>
+        document.getElementById('fetchButton').addEventListener('click', async function () {
+            const selectElement = document.getElementById('stockSelect');
+            const selectedSymbol = selectElement.value;
+            const resultBox = document.getElementById('resultBox');
 
-<script>
-    document.getElementById('fetchButton').addEventListener('click', async function() {
-        const selectElement = document.getElementById('stockSelect');
-        const selectedSymbol = selectElement.value;
-        const resultBox = document.getElementById('resultBox');
+            if (selectedSymbol) {
+                const stockData = await fetchStockData(selectedSymbol);
 
-        if (selectedSymbol) {
-            const stockData = await fetchStockData(selectedSymbol);
-            
-            if (stockData) {
-                updateStockInfo(stockData);
-                resultBox.style.display = 'block'; // Show the results
+                if (stockData) {
+                    updateStockInfo(stockData);
+                    resultBox.style.display = 'block'; // Show the results
+                } else {
+                    alert("Failed to fetch stock data. Check console for details.");
+                    resultBox.style.display = 'none';
+                }
             } else {
-                alert("Failed to fetch stock data. Check console for details.");
-                resultBox.style.display = 'none';
+                alert("Please select a stock first.");
+                resultBox.style.display = 'none'; // Hide if nothing is selected
             }
-        } else {
-            alert("Please select a stock first.");
-            resultBox.style.display = 'none'; // Hide if nothing is selected
+        });
+
+        async function fetchStockData(symbol) {
+            try {
+                const res = await fetch(`/stock/${symbol}`);
+                if (!res.ok) {
+                    throw new Error(`HTTP error! Status: ${res.status}`);
+                }
+                const data = await res.json();
+
+                // Use bought_price and quantity from server response
+                let priceWhenBought;
+                if (data.quantity && data.quantity > 0) {
+                    priceWhenBought = `$${Number(data.bought_price).toFixed(2)}`;
+                } else {
+                    priceWhenBought = `<span style="color:#ff6b5b; font-style:italic;">Not owned</span>`;
+                }
+
+                return {
+                    company: data.company_name || symbol,
+                    symbol: data.symbol,
+                    exchange: data.stock_exchange || 'N/A',
+                    currentPrice: `$${data.current_price.toFixed(2)}`,
+                    priceWhenBought: priceWhenBought,
+                    owner: localStorage.getItem('username') || 'N/A' // Assuming login sets this
+                };
+            } catch (e) {
+                console.error('Error fetching stock data:', e);
+                return null;
+            }
         }
-    });
 
-    async function fetchStockData(symbol) {
-        try {
-            const res = await fetch(`/stock/${symbol}`);
-            if (!res.ok) {
-                throw new Error(`HTTP error! Status: ${res.status}`);
-            }
-            const data = await res.json();
-            
-            // Use bought_price and quantity from server response
-            let priceWhenBought;
-            if (data.quantity && data.quantity > 0) {
-                priceWhenBought = `$${Number(data.bought_price).toFixed(2)}`;
-            } else {
-                priceWhenBought = `<span style="color:#ff6b5b; font-style:italic;">Not owned</span>`;
-            }
+        function updateStockInfo(data) {
+            document.getElementById('companyName').textContent = data.company;
+            document.getElementById('symbol').textContent = data.symbol;
+            document.getElementById('exchange').textContent = data.exchange;
+            document.getElementById('currentPrice').textContent = data.currentPrice;
+            // Use innerHTML because priceWhenBought may contain styled HTML when not owned.
+            document.getElementById('priceWhenBought').innerHTML = data.priceWhenBought;
+            document.getElementById('owner').textContent = data.owner;
+        }
 
-            return {
-                company: data.company_name || symbol,
-                symbol: data.symbol,
-                exchange: data.stock_exchange || 'N/A',
-                currentPrice: `$${data.current_price.toFixed(2)}`,
-                priceWhenBought: priceWhenBought,
-                owner: localStorage.getItem('username') || 'N/A' // Assuming login sets this
-            };
-        } catch (e) {
-            console.error('Error fetching stock data:', e);
+        // Helper function to get cookie value
+        function getCookie(name) {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return parts.pop().split(';').shift();
             return null;
         }
-    }
 
-    function updateStockInfo(data) {
-        document.getElementById('companyName').textContent = data.company;
-        document.getElementById('symbol').textContent = data.symbol;
-        document.getElementById('exchange').textContent = data.exchange;
-        document.getElementById('currentPrice').textContent = data.currentPrice;
-        // Use innerHTML because priceWhenBought may contain styled HTML when not owned.
-        document.getElementById('priceWhenBought').innerHTML = data.priceWhenBought;
-        document.getElementById('owner').textContent = data.owner;
-    }
-
-    function getQueryParams() {
-        const params = new URLSearchParams(window.location.search);
-        return {
-            token: params.get('token'),
-            username: params.get('username')
-        };
-    }
-
-    function checkAuth() {
-        const { token, username } = getQueryParams();
-        if (!token || !username) {
-            window.location.href = 'login.html';
-            return false;
+        // Check authentication by calling server API
+        async function checkAuth() {
+            try {
+                const res = await fetch('/api/auth/check');
+                if (!res.ok) {
+                    window.location.href = 'login.html';
+                    return false;
+                }
+                const data = await res.json();
+                if (!data.authenticated) {
+                    window.location.href = 'login.html';
+                    return false;
+                }
+                return true;
+            } catch (e) {
+                window.location.href = 'login.html';
+                return false;
+            }
         }
-        return true;
-    }
 
-    // Check authentication on page load
-    if (!checkAuth()) {
-        throw new Error('Auth failed');
-    }
+        // Check authentication on page load
+        checkAuth();
 
-    const { token, username } = getQueryParams();
+        // Initialize custom dropdown for stock select
+        function initializeStockDropdown() {
+            const select = document.getElementById('stockSelect');
+            const wrapper = select.closest('.stock-custom-dropdown-wrapper');
 
-    // Initialize custom dropdown for stock select
-    function initializeStockDropdown() {
-        const select = document.getElementById('stockSelect');
-        const wrapper = select.closest('.stock-custom-dropdown-wrapper');
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'stock-custom-dropdown-btn';
+            btn.textContent = select.options[select.selectedIndex].text;
 
-        const btn = document.createElement('button');
-        btn.type = 'button';
-        btn.className = 'stock-custom-dropdown-btn';
-        btn.textContent = select.options[select.selectedIndex].text;
+            const menu = document.createElement('div');
+            menu.className = 'stock-custom-dropdown-menu';
 
-        const menu = document.createElement('div');
-        menu.className = 'stock-custom-dropdown-menu';
+            for (let i = 0; i < select.options.length; i++) {
+                const item = document.createElement('div');
+                item.className = 'stock-custom-dropdown-item';
+                if (i === select.selectedIndex) item.classList.add('selected');
+                item.textContent = select.options[i].text;
+                item.dataset.value = select.options[i].value;
+                item.dataset.index = i;
 
-        for (let i = 0; i < select.options.length; i++) {
-            const item = document.createElement('div');
-            item.className = 'stock-custom-dropdown-item';
-            if (i === select.selectedIndex) item.classList.add('selected');
-            item.textContent = select.options[i].text;
-            item.dataset.value = select.options[i].value;
-            item.dataset.index = i;
+                item.addEventListener('click', () => {
+                    select.selectedIndex = i;
+                    btn.textContent = select.options[i].text;
+                    document.querySelectorAll('.stock-custom-dropdown-item').forEach(el => el.classList.remove('selected'));
+                    item.classList.add('selected');
+                    menu.classList.remove('active');
+                    btn.classList.remove('active');
+                });
 
-            item.addEventListener('click', () => {
-                select.selectedIndex = i;
-                btn.textContent = select.options[i].text;
-                document.querySelectorAll('.stock-custom-dropdown-item').forEach(el => el.classList.remove('selected'));
-                item.classList.add('selected');
-                menu.classList.remove('active');
-                btn.classList.remove('active');
+                menu.appendChild(item);
+            }
+
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                menu.classList.toggle('active');
+                btn.classList.toggle('active');
             });
 
-            menu.appendChild(item);
+            document.addEventListener('click', (e) => {
+                if (!wrapper.contains(e.target)) {
+                    menu.classList.remove('active');
+                    btn.classList.remove('active');
+                }
+            });
+
+            wrapper.insertBefore(btn, select);
+            wrapper.appendChild(menu);
         }
 
-        btn.addEventListener('click', (e) => {
-            e.preventDefault();
-            menu.classList.toggle('active');
-            btn.classList.toggle('active');
-        });
+        initializeStockDropdown();
 
-        document.addEventListener('click', (e) => {
-            if (!wrapper.contains(e.target)) {
-                menu.classList.remove('active');
-                btn.classList.remove('active');
-            }
-        });
-
-        wrapper.insertBefore(btn, select);
-        wrapper.appendChild(menu);
-    }
-
-    initializeStockDropdown();
-
-    function backToWelcome() {
-        window.location.href = `welcome.html?token=${encodeURIComponent(token)}&username=${encodeURIComponent(username)}`;
-    }
-
-    async function handleBuyStock(symbol, quantity) {
-        const response = await fetch('/api/stocks/buy', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ symbol, quantity })
-        });
-        if (response.ok) {
-            alert('Stock bought successfully!');
-            // Optionally refresh or update UI here
-        } else {
-            alert('Failed to buy stock.');
+        function backToWelcome() {
+            window.location.href = 'welcome.html';
         }
-    }
 
-    async function handleSellStock(symbol, quantity) {
-        const response = await fetch('/api/stocks/sell', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ symbol, quantity })
-        });
-        if (response.ok) {
-            alert('Stock sold successfully!');
-            // Optionally refresh or update UI here
-        } else {
-            alert('Failed to sell stock.');
-        }
-    }
-</script>
+
+    </script>
 
 </body>
+
 </html>

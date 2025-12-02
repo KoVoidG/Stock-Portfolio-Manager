@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <title>Login Test</title>
@@ -119,6 +120,7 @@
     }
   </style>
 </head>
+
 <body>
   <h2>Test Login</h2>
   <form id="loginForm">
@@ -154,13 +156,8 @@
         const text = await res.text(); // raw response
         output.textContent = `Status: ${res.status}\n\n${text}`;
         if (res.status === 200) {
-          try {
-            const data = JSON.parse(text);
-            // Redirect to welcome with token and username as query parameters
-            window.location.href = `welcome.html?token=${encodeURIComponent(data.token)}&username=${encodeURIComponent(data.username)}`;
-          } catch (e) {
-            output.textContent += '\nError parsing response.';
-          }
+          // Cookies are set by server, just redirect to clean URL
+          window.location.href = 'welcome.html';
         }
       } catch (err) {
         output.textContent = "Error: " + err;
@@ -168,4 +165,5 @@
     });
   </script>
 </body>
+
 </html>

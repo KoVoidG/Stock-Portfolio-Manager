@@ -17,8 +17,6 @@ import static spark.Spark.post;
 
 public class Server {
 
-    private static final String JWT_SECRET = "your-secret-key-change-this-in-production";
-    private static final long JWT_EXPIRATION = 24 * 60 * 60 * 1000; // 24 hours
     private static final Map<String, String> validTokens = new ConcurrentHashMap<>(); // token -> username
 
     public static void main(String[] args) {
@@ -132,10 +130,10 @@ public class Server {
             }
         });
 
-        // Protected pages - server-side auth check required
+        // Protected pages - server-side auth check required (reads from cookies)
         get("/welcome.html", (req, res) -> {
-            String token = req.queryParams("token");
-            String username = req.queryParams("username");
+            String token = req.cookie("authToken");
+            String username = req.cookie("username");
             if (token == null || token.isEmpty() || username == null || username.isEmpty()
                     || !validTokens.containsKey(token) || !validTokens.get(token).equals(username)) {
                 res.redirect("/login.html");
@@ -151,8 +149,8 @@ public class Server {
         });
 
         get("/portfolio.html", (req, res) -> {
-            String token = req.queryParams("token");
-            String username = req.queryParams("username");
+            String token = req.cookie("authToken");
+            String username = req.cookie("username");
             if (token == null || token.isEmpty() || username == null || username.isEmpty()
                     || !validTokens.containsKey(token) || !validTokens.get(token).equals(username)) {
                 res.redirect("/login.html");
@@ -168,8 +166,8 @@ public class Server {
         });
 
         get("/stock_app.html", (req, res) -> {
-            String token = req.queryParams("token");
-            String username = req.queryParams("username");
+            String token = req.cookie("authToken");
+            String username = req.cookie("username");
             if (token == null || token.isEmpty() || username == null || username.isEmpty()
                     || !validTokens.containsKey(token) || !validTokens.get(token).equals(username)) {
                 res.redirect("/login.html");
@@ -216,6 +214,11 @@ public class Server {
                 res.type("application/json");
                 String token = UUID.randomUUID().toString();
                 validTokens.put(token, lr.username); // Store the valid token
+                
+                // Set HTTP-only cookies for secure authentication
+                res.cookie("/", "authToken", token, 86400, true, true); // 24 hours, HTTP-only, secure in production
+                res.cookie("/", "username", lr.username, 86400, false, false); // Accessible to JS for display
+                
                 System.out.println("Login successful for user: " + lr.username + ", token: " + token);
                 return gson.toJson(new LoginResponse(token, lr.username));
             } else {
@@ -225,11 +228,11 @@ public class Server {
             }
         });
 
-        // API endpoint to check if user is authenticated
+        // API endpoint to check if user is authenticated (reads from cookies)
         get("/api/auth/check", (req, res) -> {
             res.type("application/json");
-            String token = req.headers("Authorization");
-            String username = req.headers("X-Username");
+            String token = req.cookie("authToken");
+            String username = req.cookie("username");
 
             if (token != null && !token.isEmpty() && validTokens.containsKey(token) && username != null
                     && !username.isEmpty() && validTokens.get(token).equals(username)) {
@@ -238,6 +241,18 @@ public class Server {
                 res.status(401);
                 return gson.toJson(Map.of("authenticated", false));
             }
+        });
+
+        // Logout endpoint - clears cookies
+        post("/logout", (req, res) -> {
+            String token = req.cookie("authToken");
+            if (token != null) {
+                validTokens.remove(token);
+            }
+            res.removeCookie("/", "authToken");
+            res.removeCookie("/", "username");
+            res.type("application/json");
+            return gson.toJson(Map.of("status", "logged out"));
         });
 
         // Portfolio instance to manage holdings

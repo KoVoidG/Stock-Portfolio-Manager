@@ -89,6 +89,6 @@ public class Portfolio {
     public void removeStock(Stock stock, int quantity) {
         if (stock != null) {
             removeStock(stock.getsymbol(), quantity);
-    
-        }}
+        }
+    }
 }

@@ -418,6 +418,7 @@
       from {
         opacity: 0;
       }
+
       to {
         opacity: 1;
       }
@@ -444,6 +445,7 @@
         transform: translateY(50px);
         opacity: 0;
       }
+
       to {
         transform: translateY(0);
         opacity: 1;
@@ -631,7 +633,8 @@
         font-size: 0.85rem;
       }
 
-      th, td {
+      th,
+      td {
         padding: 10px;
       }
 
@@ -642,19 +645,22 @@
 
     /* Profit/Loss specific styles */
     .profit {
-      color: #28a745; /* Green for profit */
+      color: #28a745;
+      /* Green for profit */
       font-weight: 700;
       letter-spacing: 0.5px;
     }
 
     .loss {
-      color: #dc3545; /* Red for loss */
+      color: #dc3545;
+      /* Red for loss */
       font-weight: 700;
       letter-spacing: 0.5px;
     }
-    
+
     .price-change-zero {
-      color: var(--text-light); /* Neutral color for zero change */
+      color: var(--text-light);
+      /* Neutral color for zero change */
       font-weight: 600;
     }
   </style>
@@ -886,34 +892,36 @@
       }
     });
 
-    // Get auth credentials from query parameters
-    function getQueryParams() {
-      const params = new URLSearchParams(window.location.search);
-      return {
-        token: params.get('token'),
-        username: params.get('username')
-      };
+    // Helper function to get cookie value
+    function getCookie(name) {
+      const value = `; ${document.cookie}`;
+      const parts = value.split(`; ${name}=`);
+      if (parts.length === 2) return parts.pop().split(';').shift();
+      return null;
     }
 
-    // Check if user is logged in
-    function checkAuth() {
-      const { token, username } = getQueryParams();
-      if (!token || !username) {
+    // Check if user is logged in by verifying cookies
+    async function checkAuth() {
+      try {
+        const res = await fetch('/api/auth/check');
+        if (!res.ok) {
+          window.location.href = 'login.html';
+          return false;
+        }
+        const data = await res.json();
+        if (!data.authenticated) {
+          window.location.href = 'login.html';
+          return false;
+        }
+        return true;
+      } catch (e) {
         window.location.href = 'login.html';
         return false;
       }
-      return true;
     }
 
-    // Get query params for API calls
-    const { token, username } = getQueryParams();
     let authPassed = false;
 
-    if (!checkAuth()) {
-      throw new Error('Auth failed');
-    }
-
-    authPassed = true;
     const usernameDisplay = document.getElementById('usernameDisplay');
     const symbolSelect = document.getElementById('symbolSelect');
     const quantityInput = document.getElementById('quantityInput');
@@ -922,9 +930,15 @@
     const holdingsBody = document.getElementById('holdingsBody');
     const totalValueEl = document.getElementById('totalValue');
 
-    function initializePage() {
-      // Display username from query params
-      usernameDisplay.textContent = username || 'Guest';
+    async function initializePage() {
+      // Check authentication first
+      if (!await checkAuth()) {
+        return;
+      }
+      authPassed = true;
+
+      // Display username from cookie
+      usernameDisplay.textContent = getCookie('username') || 'Guest';
 
       // Initial load + auto-refresh
       fetchHoldingsAndRender();
@@ -1042,11 +1056,11 @@
             const boughtPrice = Number(r.bought_price);
             const currentPrice = r.current_price;
             const quantity = r.quantity;
-            
+
             // P/L = (Current Price - Bought Price) * Quantity
             profitLossTotal = (currentPrice - boughtPrice) * quantity;
             profitLossDisplay = '$' + profitLossTotal.toFixed(2);
-            
+
             if (profitLossTotal > 0) {
               profitLossClass = 'profit';
             } else if (profitLossTotal < 0) {
@@ -1088,33 +1102,7 @@
       }
     }
 
-    async function handleBuyStock(symbol, quantity) {
-      const response = await fetch('/api/stocks/buy', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ symbol, quantity })
-      });
-      if (response.ok) {
-        alert('Stock bought successfully!');
-        fetchHoldingsAndRender();
-      } else {
-        alert('Failed to buy stock.');
-      }
-    }
 
-    async function handleSellStock(symbol, quantity) {
-      const response = await fetch('/api/stocks/sell', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ symbol, quantity })
-      });
-      if (response.ok) {
-        alert('Stock sold successfully!');
-        fetchHoldingsAndRender();
-      } else {
-        alert('Failed to sell stock.');
-      }
-    }
 
     // Escape helpers
     function escapeHtml(s) { if (s == null) return ''; return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
@@ -1177,11 +1165,16 @@
     initializeCustomDropdown();
 
     // Back and logout
-    document.getElementById('logoutBtn').addEventListener('click', () => {
+    document.getElementById('logoutBtn').addEventListener('click', async () => {
+      try {
+        await fetch('/logout', { method: 'POST' });
+      } catch (e) {
+        console.error('Logout error:', e);
+      }
       window.location.href = 'login.html';
     });
     document.getElementById('backBtn').addEventListener('click', () => {
-      window.location.href = `welcome.html?token=${encodeURIComponent(token)}&username=${encodeURIComponent(username)}`;
+      window.location.href = 'welcome.html';
     });
 
     // Note: Initial load + auto-refresh is now called by initializePage()

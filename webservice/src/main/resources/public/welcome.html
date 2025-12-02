@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <title>Welcome</title>
@@ -39,6 +40,7 @@
         opacity: 0;
         transform: translateY(30px);
       }
+
       to {
         opacity: 1;
         transform: translateY(0);
@@ -160,6 +162,7 @@
     }
   </style>
 </head>
+
 <body>
   <div class="decorative circle-top"></div>
   <div class="decorative circle-bottom"></div>
@@ -170,7 +173,7 @@
       You are logged in as
       <span class="username" id="username"></span>
     </div>
-    
+
     <div class="button-group">
       <button onclick="goPortfolio()">Portfolio</button>
       <button onclick="goStockInfo()">Stock Info</button>
@@ -178,48 +181,57 @@
     </div>
   </div>
 
-  <script src="common.js"></script>
   <script>
-    // Get token and username from query parameters
-    function getQueryParams() {
-      const params = new URLSearchParams(window.location.search);
-      return {
-        token: params.get('token'),
-        username: params.get('username')
-      };
-    }
-
-    // Check auth - just verify we have token and username in URL
-    function checkAuth() {
-      const { token, username } = getQueryParams();
-      if (!token || !username) {
+    // Check authentication by calling server API
+    async function checkAuth() {
+      try {
+        const res = await fetch('/api/auth/check');
+        if (!res.ok) {
+          window.location.href = 'login.html';
+          return false;
+        }
+        const data = await res.json();
+        if (!data.authenticated) {
+          window.location.href = 'login.html';
+          return false;
+        }
+        // Display username from cookie
+        document.getElementById('username').textContent = getCookie('username') || 'Guest';
+        return true;
+      } catch (e) {
         window.location.href = 'login.html';
         return false;
       }
-      return true;
+    }
+
+    // Helper function to get cookie value
+    function getCookie(name) {
+      const value = `; ${document.cookie}`;
+      const parts = value.split(`; ${name}=`);
+      if (parts.length === 2) return parts.pop().split(';').shift();
+      return null;
     }
 
     // Initialize page
-    if (!checkAuth()) {
-      throw new Error('Auth failed');
-    }
-
-    const { token, username } = getQueryParams();
-    
-    // Display username
-    document.getElementById('username').textContent = username || 'Guest';
+    checkAuth();
 
     function goPortfolio() {
-      window.location.href = `portfolio.html?token=${encodeURIComponent(token)}&username=${encodeURIComponent(username)}`;
+      window.location.href = 'portfolio.html';
     }
 
     function goStockInfo() {
-      window.location.href = `stock_app.html?token=${encodeURIComponent(token)}&username=${encodeURIComponent(username)}`;
+      window.location.href = 'stock_app.html';
     }
 
-    function logout() {
+    async function logout() {
+      try {
+        await fetch('/logout', { method: 'POST' });
+      } catch (e) {
+        console.error('Logout error:', e);
+      }
       window.location.href = 'login.html';
     }
   </script>
 </body>
+
 </html>
