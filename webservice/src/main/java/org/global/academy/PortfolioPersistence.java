@@ -10,16 +10,25 @@ import java.util.List;
 import java.util.Map;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 public class PortfolioPersistence {
 
-    private static final String DATA_FILE = "portfolio_data.json";
+    // Save data in src/main/resources/data/ to persist across rebuilds
+    private static final String DATA_FILE = "src/main/resources/data/portfolio_data.json";
     private static final Gson gson = new Gson();
 
     // Save portfolio to file
     public static void savePortfolio(Portfolio portfolio) {
         try {
+            // Create directory if it doesn't exist
+            File dataFile = new File(DATA_FILE);
+            File parentDir = dataFile.getParentFile();
+            if (parentDir != null && !parentDir.exists()) {
+                parentDir.mkdirs();
+            }
+
             Map<String, Object> data = new HashMap<>();
             data.put("holdings", portfolio.getHoldings());
             data.put("costBasis", portfolio.getAllCostBasis());
@@ -96,7 +105,7 @@ public class PortfolioPersistence {
                 }
             }
 
-            // Load holdings
+            // Load holdings (without creating new purchase history)
             JsonObject holdings = data.getAsJsonObject("holdings");
             if (holdings != null) {
                 for (String symbol : holdings.keySet()) {
@@ -104,20 +113,38 @@ public class PortfolioPersistence {
                     if (quantity > 0) {
                         Stock stock = portfolio.getStock(symbol);
                         if (stock != null) {
-                            portfolio.removeStock(symbol, Integer.MAX_VALUE); // Remove the 0 quantity one
-                            portfolio.addStock(stock, quantity); // Add with correct quantity
+                            // Use setter method to properly restore holdings
+                            portfolio.setHolding(symbol, quantity);
                         }
                     }
                 }
             }
 
-            // Load cost basis (if exists in saved data)
+            // Load cost basis
             JsonObject costBasisData = data.getAsJsonObject("costBasis");
             if (costBasisData != null) {
-                // Cost basis will be loaded through the addStock calls above
-                // But if we have saved cost basis, we should restore it directly
-                // This requires adding a setter method to Portfolio
-                System.out.println("Cost basis data found in saved portfolio");
+                for (String symbol : costBasisData.keySet()) {
+                    double costBasis = costBasisData.get(symbol).getAsDouble();
+                    // Use setter method to properly restore cost basis
+                    portfolio.setCostBasis(symbol, costBasis);
+                }
+            }
+
+            // Load purchase history with original timestamps
+            JsonArray purchaseHistoryData = data.getAsJsonArray("purchaseHistory");
+            if (purchaseHistoryData != null) {
+                for (int i = 0; i < purchaseHistoryData.size(); i++) {
+                    JsonObject purchaseObj = purchaseHistoryData.get(i).getAsJsonObject();
+                    String symbol = purchaseObj.get("symbol").getAsString();
+                    int quantity = purchaseObj.get("quantity").getAsInt();
+                    double price = purchaseObj.get("price").getAsDouble();
+                    String timestamp = purchaseObj.get("timestamp").getAsString();
+                    
+                    // Use method to properly add to purchase history
+                    portfolio.addPurchaseToHistory(
+                        new Portfolio.Purchase(symbol, quantity, price, timestamp)
+                    );
+                }
             }
 
             System.out.println("Portfolio loaded from " + DATA_FILE);

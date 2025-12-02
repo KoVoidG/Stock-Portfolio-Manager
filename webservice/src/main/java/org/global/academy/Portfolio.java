@@ -129,6 +129,16 @@ public class Portfolio {
         return new HashMap<>(holdings);
     }
 
+    // Method for persistence layer to directly set holdings without creating history
+    public void setHolding(String symbol, int quantity) {
+        holdings.put(symbol, quantity);
+    }
+
+    // Method for persistence layer to directly set cost basis
+    public void setCostBasis(String symbol, double costBasis) {
+        this.costBasis.put(symbol, costBasis);
+    }
+
     public Stock getStock(String symbol) {
         return stockInfo.get(symbol);
     }
@@ -153,6 +163,11 @@ public class Portfolio {
 
     public List<Purchase> getAllPurchaseHistory() {
         return new ArrayList<>(purchaseHistory);
+    }
+
+    // Method for persistence layer to directly add purchase history
+    public void addPurchaseToHistory(Purchase purchase) {
+        purchaseHistory.add(purchase);
     }
 
     public void removeStock(Stock stock, int quantity) {

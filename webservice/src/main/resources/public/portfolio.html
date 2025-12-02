@@ -856,7 +856,7 @@
                 <th>Symbol</th>
                 <th>Company</th>
                 <th>Quantity</th>
-                <th>Price When Bought</th>
+                <th>Avg Cost</th>
                 <th>Current Price</th>
                 <th>Total Value</th>
                 <th>Profit/Loss</th>
@@ -1081,7 +1081,11 @@
 
       // Initial load + auto-refresh
       fetchHoldingsAndRender();
-      const intervalId = setInterval(fetchHoldingsAndRender, 30000);
+      loadPurchaseHistory(); // Load purchase history
+      const intervalId = setInterval(() => {
+        fetchHoldingsAndRender();
+        loadPurchaseHistory(); // Refresh history too
+      }, 30000);
 
       // Clean up on page unload
       window.addEventListener('beforeunload', () => { clearInterval(intervalId); });
@@ -1423,31 +1427,7 @@
       });
     }
 
-    // Load purchase history on page load and after buying stocks
-    async function initializePage() {
-      // Check authentication first
-      if (!await checkAuth()) {
-        return;
-      }
-      authPassed = true;
 
-      // Display username from cookie
-      usernameDisplay.textContent = getCookie('username') || 'Guest';
-
-      // Initial load + auto-refresh
-      fetchHoldingsAndRender();
-      loadPurchaseHistory(); // Load purchase history
-      const intervalId = setInterval(() => {
-        fetchHoldingsAndRender();
-        loadPurchaseHistory(); // Refresh history too
-      }, 30000);
-
-      // Clean up on page unload
-      window.addEventListener('beforeunload', () => { clearInterval(intervalId); });
-
-      // Setup buy button handler
-      buyBtn.addEventListener('click', handleBuyClick);
-    }
   </script>
 </body>
 
