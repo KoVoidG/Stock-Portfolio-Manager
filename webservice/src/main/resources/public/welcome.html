@@ -4,79 +4,177 @@
   <meta charset="UTF-8">
   <title>Welcome</title>
   <style>
-    body {
+    * {
       margin: 0;
-      height: 100vh;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #F8E4D8 0%, #F5D4C8 50%, #F0C8B8 100%);
+      min-height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
-      background: linear-gradient(135deg, #74ABE2, #5563DE);
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      color: #fff;
+      padding: 20px;
+      color: #333;
+      overflow-x: hidden;
     }
 
     .container {
-      background: rgba(255, 255, 255, 0.1);
-      backdrop-filter: blur(10px);
-      padding: 40px 50px;
-      border-radius: 20px;
-      box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(20px);
+      padding: 60px 50px;
+      border-radius: 30px;
+      box-shadow: 0 20px 60px rgba(200, 100, 80, 0.2);
       text-align: center;
-      animation: fadeIn 1s ease;
+      animation: slideIn 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
+      max-width: 500px;
+      width: 100%;
     }
 
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     h2 {
-      font-size: 2em;
-      margin-bottom: 20px;
-      color: #fff;
-      text-shadow: 0 2px 5px rgba(0,0,0,0.3);
+      font-size: 2.5em;
+      margin-bottom: 10px;
+      color: #8B4513;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      font-weight: 800;
+    }
+
+    .greeting {
+      font-size: 1.1em;
+      color: #666;
+      margin-bottom: 40px;
+      line-height: 1.6;
     }
 
     .username {
-      color: #ffe600;
-      font-weight: bold;
-      text-shadow: 0 0 10px rgba(255,255,255,0.6);
+      color: #D4845C;
+      font-weight: 700;
+      font-size: 1.2em;
+      display: block;
+      margin: 15px 0;
     }
 
     .button-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+      margin-top: 35px;
+    }
+
+    .button-wrapper {
       display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      justify-content: center;
     }
 
     button {
-      background: #e74c3c;
+      background: linear-gradient(135deg, #D4845C, #C97346);
       border: none;
-      color: #fff;
-      padding: 12px 30px;
-      margin: 0;
-      border-radius: 30px;
-      font-size: 1em;
+      color: white;
+      padding: 16px 24px;
+      border-radius: 15px;
+      font-size: 1.05em;
+      font-weight: 700;
       cursor: pointer;
-      transition: all 0.3s ease;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+      box-shadow: 0 8px 20px rgba(212, 132, 92, 0.3);
+      font-family: 'Poppins', sans-serif;
+      letter-spacing: 0.5px;
+      flex: 1;
     }
 
     button:hover {
-      background: #ff6b5b;
-      transform: scale(1.05);
-      box-shadow: 0 6px 15px rgba(0,0,0,0.4);
+      background: linear-gradient(135deg, #E8956C, #DB855C);
+      transform: translateY(-3px);
+      box-shadow: 0 12px 30px rgba(212, 132, 92, 0.4);
+    }
+
+    button:active {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 15px rgba(212, 132, 92, 0.3);
+    }
+
+    .logout-btn {
+      grid-column: 1 / -1;
+      background: linear-gradient(135deg, #A0522D, #8B4513);
+    }
+
+    .logout-btn:hover {
+      background: linear-gradient(135deg, #B86B3D, #9E5C28);
+      box-shadow: 0 12px 30px rgba(160, 82, 45, 0.4);
+    }
+
+    .decorative {
+      position: fixed;
+      border-radius: 50%;
+      opacity: 0.15;
+      pointer-events: none;
+    }
+
+    .circle-top {
+      width: 300px;
+      height: 300px;
+      background: #D4845C;
+      top: -100px;
+      left: -100px;
+    }
+
+    .circle-bottom {
+      width: 250px;
+      height: 250px;
+      background: #D4845C;
+      bottom: -80px;
+      right: -80px;
+    }
+
+    @media (max-width: 600px) {
+      .container {
+        padding: 40px 30px;
+      }
+
+      h2 {
+        font-size: 2em;
+      }
+
+      .button-group {
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+
+      .logout-btn {
+        grid-column: 1;
+      }
     }
   </style>
 </head>
 <body>
+  <div class="decorative circle-top"></div>
+  <div class="decorative circle-bottom"></div>
+
   <div class="container">
-    <h2>Welcome, <span class="username" id="username"></span>!</h2>
+    <h2>Welcome Back!</h2>
+    <div class="greeting">
+      You are logged in as
+      <span class="username" id="username"></span>
+    </div>
+    
     <div class="button-group">
-      <button onclick="goPortfolio()">My Portfolio</button>
+      <button onclick="goPortfolio()">Portfolio</button>
       <button onclick="goStockInfo()">Stock Info</button>
-      <button onclick="logout()">Logout</button>
+      <button class="logout-btn" onclick="logout()">Logout</button>
     </div>
   </div>
 

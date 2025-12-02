@@ -5,124 +5,353 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Stock Information App</title>
     <style>
-        /* Match the welcome page theme */
-        body {
+        * {
             margin: 0;
-            height: 100vh;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            background: linear-gradient(135deg, #74ABE2, #5563DE);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            color: #fff;
+            background: linear-gradient(135deg, #F8E4D8 0%, #F5D4C8 50%, #F0C8B8 100%);
+            font-family: 'Poppins', sans-serif;
+            color: #333;
+            padding: 20px;
         }
 
         .stock-container {
-            max-width: 520px;
-            width: 92%;
-            padding: 28px 32px;
-            background: rgba(255, 255, 255, 0.06);
-            backdrop-filter: blur(8px);
-            border-radius: 20px;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
-            color: #fff;
+            max-width: 600px;
+            width: 100%;
+            padding: 40px 35px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 25px;
+            box-shadow: 0 20px 60px rgba(200, 100, 80, 0.2);
+            color: #333;
+            animation: slideIn 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header-flex {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            gap: 15px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid rgba(212, 132, 92, 0.2);
         }
 
         h2 {
-            font-size: 26px;
-            margin-top: 0;
-            margin-bottom: 16px;
-            font-weight: 700;
-            text-shadow: 0 2px 5px rgba(0,0,0,0.3);
+            font-size: 2em;
+            margin: 0;
+            font-weight: 800;
+            color: #8B4513;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .selection-form {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
         }
 
         .selection-form label {
             display: block;
-            margin-bottom: 6px;
             font-weight: 600;
-            color: #fff;
+            color: #8B4513;
+            font-size: 0.95rem;
+            letter-spacing: 0.5px;
         }
 
+        /* Hide native select element */
         #stockSelect {
+            display: none;
+        }
+
+        /* Custom dropdown wrapper */
+        .stock-custom-dropdown-wrapper {
+            position: relative;
+            margin-bottom: 14px;
+        }
+
+        /* Display dropdown button */
+        .stock-custom-dropdown-btn {
             width: 100%;
-            padding: 10px;
-            margin-top: 5px;
-            margin-bottom: 15px;
-            border: 1px solid rgba(255,255,255,0.12);
-            border-radius: 8px;
-            box-sizing: border-box;
-            font-size: 15px;
-            background: rgba(255,255,255,0.95);
-            color: #000000;
+            padding: 14px 16px;
+            border-radius: 12px;
+            border: 2px solid rgba(212, 132, 92, 0.3);
+            background: linear-gradient(135deg, #FFFBF8 0%, #FFF7F2 100%);
+            color: #333;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23D4845C' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 22px;
+            padding-right: 45px;
+        }
+
+        .stock-custom-dropdown-btn:hover {
+            border-color: #D4845C;
+            box-shadow: 0 4px 12px rgba(212, 132, 92, 0.15);
+            transform: translateY(-1px);
+        }
+
+        .stock-custom-dropdown-btn.active {
+            border-color: #D4845C;
+            box-shadow: 0 0 0 3px rgba(212, 132, 92, 0.1), 0 4px 12px rgba(212, 132, 92, 0.15);
+            background-color: white;
+        }
+
+        /* Dropdown menu */
+        .stock-custom-dropdown-menu {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 2px solid rgba(212, 132, 92, 0.2);
+            border-top: none;
+            border-radius: 0 0 12px 12px;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            box-shadow: 0 8px 24px rgba(212, 132, 92, 0.15);
+            z-index: 1000;
+        }
+
+        .stock-custom-dropdown-menu.active {
+            max-height: 400px;
+            overflow-y: auto;
+            box-shadow: 0 12px 32px rgba(212, 132, 92, 0.25);
+        }
+
+        /* Dropdown menu scrollbar styling */
+        .stock-custom-dropdown-menu::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .stock-custom-dropdown-menu::-webkit-scrollbar-track {
+            background: rgba(212, 132, 92, 0.05);
+            border-radius: 10px;
+        }
+
+        .stock-custom-dropdown-menu::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, rgba(212, 132, 92, 0.3), rgba(201, 115, 70, 0.3));
+            border-radius: 10px;
+            transition: background 0.2s;
+        }
+
+        .stock-custom-dropdown-menu::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, rgba(212, 132, 92, 0.5), rgba(201, 115, 70, 0.5));
+        }
+
+        /* Dropdown items */
+        .stock-custom-dropdown-item {
+            padding: 14px 16px;
+            cursor: pointer;
+            color: #333;
+            font-weight: 500;
+            border-bottom: 1px solid rgba(212, 132, 92, 0.08);
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .stock-custom-dropdown-item:last-child {
+            border-bottom: none;
+        }
+
+        .stock-custom-dropdown-item:hover {
+            background: linear-gradient(135deg, rgba(212, 132, 92, 0.1), rgba(201, 115, 70, 0.08));
+            padding-left: 20px;
+            color: #8B4513;
+        }
+
+        .stock-custom-dropdown-item.selected {
+            background: linear-gradient(135deg, #D4845C 0%, #C97346 100%);
+            color: white;
+            font-weight: 700;
+        }
+
+        .stock-custom-dropdown-item.selected::before {
+            content: '✓';
+            font-weight: 800;
+            font-size: 1.1em;
         }
 
         #fetchButton, .back-button {
             width: 100%;
-            padding: 12px;
-            background: #e74c3c;
-            color: #fff;
+            padding: 14px;
+            background: linear-gradient(135deg, #D4845C, #C97346);
+            color: white;
             border: none;
-            border-radius: 30px;
+            border-radius: 12px;
             cursor: pointer;
-            font-size: 16px;
-            font-weight: 600;
-            transition: all 0.25s ease;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+            font-size: 1rem;
+            font-weight: 700;
+            font-family: 'Poppins', sans-serif;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            box-shadow: 0 8px 20px rgba(212, 132, 92, 0.3);
+            letter-spacing: 0.5px;
         }
 
         #fetchButton:hover, .back-button:hover {
-            background: #ff6b5b;
+            background: linear-gradient(135deg, #E8956C, #DB855C);
             transform: translateY(-2px);
+            box-shadow: 0 12px 30px rgba(212, 132, 92, 0.4);
+        }
+
+        #fetchButton:active, .back-button:active {
+            transform: translateY(0);
+        }
+
+        .back-button {
+            width: auto;
+            padding: 10px 20px;
+            flex-shrink: 0;
         }
 
         .result-box {
-            margin-top: 20px;
-            padding: 16px;
-            border-radius: 12px;
-            background: rgba(255,255,255,0.03);
-            border: 1px solid rgba(255,255,255,0.06);
-            box-shadow: 0 6px 18px rgba(0,0,0,0.25);
-            color: #fff;
+            margin-top: 30px;
+            padding: 25px;
+            border-radius: 15px;
+            background: rgba(212, 132, 92, 0.08);
+            border: 2px solid rgba(212, 132, 92, 0.15);
+            box-shadow: 0 8px 20px rgba(212, 132, 92, 0.08);
+            color: #333;
+            animation: fadeIn 0.4s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .success-message {
-            color: #ffe600;
+            color: #D4845C;
             font-weight: 700;
-            margin-bottom: 12px;
+            margin-bottom: 18px;
             display: block;
+            font-size: 1.1em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
-        .result-box table { width: 100%; border-collapse: collapse; }
-        .result-box td { padding: 8px 0; font-size: 15px; vertical-align: top; }
-        .result-box td:first-child { width: 50%; font-weight: 700; opacity: 0.9; }
+        .result-box table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .result-box tr {
+            border-bottom: 1px solid rgba(212, 132, 92, 0.1);
+        }
+
+        .result-box tr:last-child {
+            border-bottom: none;
+        }
+
+        .result-box td {
+            padding: 14px 0;
+            font-size: 0.95rem;
+            vertical-align: middle;
+        }
+
+        .result-box td:first-child {
+            width: 45%;
+            font-weight: 700;
+            color: #8B4513;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .result-box td:last-child {
+            color: #333;
+            font-weight: 500;
+        }
+
+        @media (max-width: 600px) {
+            .stock-container {
+                padding: 30px 20px;
+            }
+
+            .header-flex {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .back-button {
+                width: 100%;
+            }
+
+            h2 {
+                font-size: 1.5em;
+            }
+
+            .result-box td {
+                padding: 10px 0;
+                font-size: 0.9rem;
+            }
+        }
     </style>
 </head>
 <body>
 
 <div class="stock-container">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-        <h2>Stock Information</h2>
-        <button class="back-button" style="width:auto;padding:10px 16px;" onclick="backToWelcome()">Back</button>
+    <div class="header-flex">
+        <h2>Stock Info</h2>
+        <button class="back-button" onclick="backToWelcome()">← Back</button>
     </div>
 
     <div class="selection-form">
         <label for="stockSelect">Select a Stock:</label>
-        <select id="stockSelect">
-            <option value="">-- Choose a stock --</option>
-            <option value="AAPL">Apple (AAPL)</option>
-            <option value="MSFT">Microsoft (MSFT)</option>
-            <option value="GOOGL">Google (GOOGL)</option>
-            <option value="AMZN">Amazon (AMZN)</option>
-            <option value="TSLA">Tesla (TSLA)</option>
-            <option value="META">Meta (META)</option>
-            <option value="NFLX">Netflix (NFLX)</option>
-            <option value="NVDA">NVIDIA (NVDA)</option>
-        </select>
+        <div class="stock-custom-dropdown-wrapper">
+            <select id="stockSelect">
+                <option value="">-- Choose a stock --</option>
+                <option value="AAPL">Apple (AAPL)</option>
+                <option value="MSFT">Microsoft (MSFT)</option>
+                <option value="GOOGL">Google (GOOGL)</option>
+                <option value="AMZN">Amazon (AMZN)</option>
+                <option value="TSLA">Tesla (TSLA)</option>
+                <option value="META">Meta (META)</option>
+                <option value="NFLX">Netflix (NFLX)</option>
+                <option value="NVDA">NVIDIA (NVDA)</option>
+            </select>
+        </div>
         <button id="fetchButton">Fetch Stock Info</button>
     </div>
 
     <div id="resultBox" class="result-box" style="display: none;">
-        <span class="success-message">Success!</span>
+        <span class="success-message">✓ Stock Information</span>
         <table>
             <tr>
                 <td>Company:</td>
@@ -237,6 +466,58 @@
     }
 
     const { token, username } = getQueryParams();
+
+    // Initialize custom dropdown for stock select
+    function initializeStockDropdown() {
+        const select = document.getElementById('stockSelect');
+        const wrapper = select.closest('.stock-custom-dropdown-wrapper');
+
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'stock-custom-dropdown-btn';
+        btn.textContent = select.options[select.selectedIndex].text;
+
+        const menu = document.createElement('div');
+        menu.className = 'stock-custom-dropdown-menu';
+
+        for (let i = 0; i < select.options.length; i++) {
+            const item = document.createElement('div');
+            item.className = 'stock-custom-dropdown-item';
+            if (i === select.selectedIndex) item.classList.add('selected');
+            item.textContent = select.options[i].text;
+            item.dataset.value = select.options[i].value;
+            item.dataset.index = i;
+
+            item.addEventListener('click', () => {
+                select.selectedIndex = i;
+                btn.textContent = select.options[i].text;
+                document.querySelectorAll('.stock-custom-dropdown-item').forEach(el => el.classList.remove('selected'));
+                item.classList.add('selected');
+                menu.classList.remove('active');
+                btn.classList.remove('active');
+            });
+
+            menu.appendChild(item);
+        }
+
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            menu.classList.toggle('active');
+            btn.classList.toggle('active');
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!wrapper.contains(e.target)) {
+                menu.classList.remove('active');
+                btn.classList.remove('active');
+            }
+        });
+
+        wrapper.insertBefore(btn, select);
+        wrapper.appendChild(menu);
+    }
+
+    initializeStockDropdown();
 
     function backToWelcome() {
         window.location.href = `welcome.html?token=${encodeURIComponent(token)}&username=${encodeURIComponent(username)}`;

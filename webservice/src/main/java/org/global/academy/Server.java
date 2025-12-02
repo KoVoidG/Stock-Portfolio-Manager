@@ -93,11 +93,11 @@ public class Server {
         });
 
         // Serve static assets (images, CSS, etc.) - no auth required
-        get("/logo.png", (req, res) -> {
+        get("/logo.jpg", (req, res) -> {
             try {
-                res.type("image/png");
+                res.type("image/jpeg");
                 ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-                java.io.InputStream input = classLoader.getResourceAsStream("public/logo.png");
+                java.io.InputStream input = classLoader.getResourceAsStream("public/logo.jpg");
                 if (input == null) {
                     res.status(404);
                     return "Logo not found";
@@ -109,6 +109,26 @@ public class Server {
             } catch (Exception e) {
                 res.status(500);
                 return "Error loading logo: " + e.getMessage();
+            }
+        });
+
+        // Serve GIF files - no auth required
+        get("/cat-pixel-art.gif", (req, res) -> {
+            try {
+                res.type("image/gif");
+                ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+                java.io.InputStream input = classLoader.getResourceAsStream("public/cat-pixel-art.gif");
+                if (input == null) {
+                    res.status(404);
+                    return "GIF not found";
+                }
+                byte[] gifBytes = input.readAllBytes();
+                res.raw().getOutputStream().write(gifBytes);
+                res.raw().getOutputStream().flush();
+                return "";
+            } catch (Exception e) {
+                res.status(500);
+                return "Error loading GIF: " + e.getMessage();
             }
         });
 

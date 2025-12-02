@@ -5,73 +5,177 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Welcome to Global Academy</title>
   <style>
-    body {
+    /* Template Twist - Pastel Purple Theme */
+    * {
       margin: 0;
-      height: 100vh;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #F8E4D8 0%, #F5D4C8 50%, #F0C8B8 100%);
+      min-height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
+      color: #333;
+      overflow-x: hidden;
+    }
+
+    .container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 60px;
+      align-items: center;
+      max-width: 1200px;
+      width: 90%;
+      padding: 40px;
+    }
+
+    .left-content {
+      display: flex;
       flex-direction: column;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(135deg, #74ABE2, #5563DE);
-      color: white;
-      text-align: center;
+      gap: 30px;
     }
 
     .logo {
-      width: 120px;          /* Adjust size */
-      height: auto;
-      margin-bottom: 20px;   /* Space below logo */
-      border-radius: 100px;   /* Optional rounded corners */
-      box-shadow: 0 4px 10px rgba(0,0,0,0.2); /* Optional shadow */
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      box-shadow: 0 8px 25px rgba(200, 100, 200, 0.3);
+      transition: transform 0.3s ease;
+      object-fit: cover;
+    }
+
+    .logo:hover {
+      transform: scale(1.08) rotate(5deg);
     }
 
     h1 {
-      font-size: 2.5em;
-      background: linear-gradient(90deg, #fff, #f8d9ff);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      animation: glow 3s infinite alternate;
-      margin-bottom: 0.5em;
+      font-size: 3em;
+      font-weight: 800;
+      color: #8B4513;
+      line-height: 1.2;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 15px;
     }
 
-    @keyframes glow {
-      from { text-shadow: 0 0 10px rgba(255,255,255,0.5); }
-      to { text-shadow: 0 0 20px rgba(255,255,255,1); }
+    .subtitle {
+      font-size: 1.3em;
+      color: #A0522D;
+      font-weight: 500;
+      margin-bottom: 20px;
     }
 
     p {
-      font-size: 1.2em;
-      opacity: 0.9;
-      margin-bottom: 2em;
+      font-size: 1.05em;
+      color: #666;
+      line-height: 1.6;
+      margin-bottom: 30px;
     }
 
     a.button {
-      text-decoration: none;
+      display: inline-block;
+      padding: 16px 50px;
+      background: linear-gradient(135deg, #D4845C, #C97346);
       color: white;
-      background: #e74c3c;
-      padding: 12px 30px;
-      border-radius: 30px;
-      font-size: 1em;
-      font-weight: bold;
-      transition: all 0.3s ease;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      text-decoration: none;
+      border-radius: 50px;
+      font-weight: 700;
+      font-size: 1.1em;
+      letter-spacing: 1px;
+      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+      box-shadow: 0 8px 20px rgba(212, 132, 92, 0.3);
+      border: 2px solid transparent;
+      width: fit-content;
     }
 
     a.button:hover {
-      background: #ff6b5b;
-      transform: scale(1.05);
-      box-shadow: 0 6px 15px rgba(0,0,0,0.3);
+      background: linear-gradient(135deg, #E8956C, #DB855C);
+      transform: translateY(-3px);
+      box-shadow: 0 12px 30px rgba(212, 132, 92, 0.5);
+    }
+
+    .right-content {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .hero-image {
+      width: 100%;
+      max-width: auto;
+      height: auto;
+      border-radius: 20px;
+      box-shadow: 0 15px 40px rgba(200, 100, 200, 0.25);
+      transition: transform 0.3s ease;
+      object-fit: contain;
+      background: rgba(255, 255, 255, 0.1);
+      padding: 20px;
+    }
+
+    .hero-image:hover {
+      transform: translateY(-5px);
+    }
+
+    .decorative-circle {
+      position: absolute;
+      border-radius: 50%;
+      opacity: 0.4;
+    }
+
+    .circle-1 {
+      width: 200px;
+      height: 200px;
+      background: radial-gradient(circle, #FFD9E8, transparent);
+      top: -50px;
+      right: -50px;
+    }
+
+    .circle-2 {
+      width: 150px;
+      height: 150px;
+      background: radial-gradient(circle, #E8C5F2, transparent);
+      bottom: 20px;
+      left: -30px;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .container {
+        grid-template-columns: 1fr;
+        gap: 30px;
+      }
+
+      h1 {
+        font-size: 2.2em;
+      }
+
+      .right-content {
+        margin-top: 30px;
+      }
     }
   </style>
 </head>
 <body>
-  <!-- Logo Section -->
-  <img src="logo.png" alt="Stock Portfolio Logo" class="logo">
+  <div class="container">
+    <!-- Left Content Section -->
+    <div class="left-content">
+      <img src="logo.jpg" alt="Stock Portfolio Logo" class="logo">
+      <h1>Welcome to<br>Kygforlio</h1>
+      <p>Invest Today. Purr Tomorrow.</p>
+      <a href="login.html" class="button">Login</a>
+    </div>
 
-  <!-- Main Content -->
-  <h1>Hello, Welcome to Our Stock Portfolio.</h1>
-  <p>Empowering minds. Inspiring futures.</p>
-  <a href="login.html" class="button">Login</a>
+    <!-- Right Content Section -->
+    <div class="right-content">
+      <div class="decorative-circle circle-1"></div>
+      <div class="decorative-circle circle-2"></div>
+      <img src="/cat-pixel-art.gif" alt="Hero Image" class="hero-image">
+    </div>
+  </div>
 </body>
 </html>
