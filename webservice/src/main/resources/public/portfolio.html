@@ -663,6 +663,138 @@
       /* Neutral color for zero change */
       font-weight: 600;
     }
+
+    /* Purchase History Section Styles */
+    .purchase-history-card {
+      background: rgba(212, 132, 92, 0.08);
+      padding: 25px;
+      border-radius: 18px;
+      border: 2px solid rgba(212, 132, 92, 0.15);
+      transition: all 0.3s ease;
+      margin-top: 25px;
+    }
+
+    .purchase-history-card:hover {
+      box-shadow: 0 10px 30px rgba(212, 132, 92, 0.1);
+      border-color: rgba(212, 132, 92, 0.25);
+    }
+
+    .purchase-history-card h3 {
+      color: var(--text-dark);
+      margin-bottom: 20px;
+      font-size: 1.3em;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .history-filter {
+      margin-bottom: 20px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .filter-btn {
+      background: linear-gradient(135deg, rgba(212, 132, 92, 0.2), rgba(201, 115, 70, 0.2));
+      border: 2px solid rgba(212, 132, 92, 0.3);
+      color: var(--text-dark);
+      padding: 8px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.9rem;
+      transition: all 0.2s;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    .filter-btn:hover {
+      background: linear-gradient(135deg, rgba(212, 132, 92, 0.3), rgba(201, 115, 70, 0.3));
+      border-color: var(--accent);
+    }
+
+    .filter-btn.active {
+      background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+      color: white;
+      border-color: var(--accent-dark);
+    }
+
+    .history-list {
+      max-height: 400px;
+      overflow-y: auto;
+    }
+
+    .history-list::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .history-list::-webkit-scrollbar-track {
+      background: rgba(212, 132, 92, 0.05);
+      border-radius: 10px;
+    }
+
+    .history-list::-webkit-scrollbar-thumb {
+      background: linear-gradient(135deg, rgba(212, 132, 92, 0.3), rgba(201, 115, 70, 0.3));
+      border-radius: 10px;
+    }
+
+    .purchase-item {
+      background: linear-gradient(135deg, #FFFBF8 0%, #FFF7F2 100%);
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 12px;
+      border-left: 4px solid var(--accent);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: all 0.2s;
+    }
+
+    .purchase-item:hover {
+      transform: translateX(5px);
+      box-shadow: 0 4px 12px rgba(212, 132, 92, 0.15);
+    }
+
+    .purchase-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .purchase-info {
+      flex: 1;
+    }
+
+    .purchase-symbol {
+      font-weight: 800;
+      color: var(--text-dark);
+      font-size: 1.1em;
+      margin-bottom: 4px;
+    }
+
+    .purchase-date {
+      color: #666;
+      font-size: 0.85em;
+      margin-bottom: 6px;
+    }
+
+    .purchase-details {
+      color: var(--text-light);
+      font-weight: 600;
+      font-size: 0.95em;
+    }
+
+    .purchase-cost {
+      font-weight: 700;
+      color: var(--accent-dark);
+      font-size: 1.2em;
+    }
+
+    .no-history {
+      text-align: center;
+      color: #999;
+      padding: 40px 20px;
+      font-style: italic;
+      font-size: 1.05em;
+    }
   </style>
 </head>
 
@@ -740,6 +872,13 @@
         </div>
       </section>
     </div>
+    <section class="card purchase-history-card">
+      <h3>Purchase History</h3>
+      <div class="history-filter" id="historyFilter"></div>
+      <div class="history-list" id="historyList">
+        <div class="no-history">No purchase history available</div>
+      </div>
+    </section>
   </div>
 
   <!-- Sell Modal -->
@@ -981,6 +1120,7 @@
         buyStatus.textContent = 'Added successfully.';
         quantityInput.value = '1';
         await fetchHoldingsAndRender();
+        await loadPurchaseHistory();
       } catch (e) {
         buyStatus.textContent = 'Error: ' + (e.message || e);
         console.error(e);
@@ -1047,18 +1187,17 @@
           const total = r.quantity * r.current_price;
           totalPortfolio += total;
 
-          // Profit/Loss Calculation Logic
+          // Profit/Loss Calculation Logic using Cost Basis
           let profitLossTotal = 0;
           let profitLossDisplay = '—';
           let profitLossClass = 'price-change-zero';
 
-          if (r.quantity > 0 && r.bought_price) {
-            const boughtPrice = Number(r.bought_price);
-            const currentPrice = r.current_price;
-            const quantity = r.quantity;
+          if (r.quantity > 0 && r.cost_basis !== undefined) {
+            const totalCostBasis = Number(r.cost_basis) || 0;
+            const totalCurrentValue = r.quantity * r.current_price;
 
-            // P/L = (Current Price - Bought Price) * Quantity
-            profitLossTotal = (currentPrice - boughtPrice) * quantity;
+            // P/L = Total Current Value - Total Cost Basis
+            profitLossTotal = totalCurrentValue - totalCostBasis;
             profitLossDisplay = '$' + profitLossTotal.toFixed(2);
 
             if (profitLossTotal > 0) {
@@ -1068,14 +1207,15 @@
             }
           }
 
-          // Use bought_price from API if available, otherwise show "—"
-          const boughtDisplay = r.bought_price && r.quantity > 0 ? ('$' + Number(r.bought_price).toFixed(2)) : '—';
+          // Calculate and display average cost per share
+          const avgCost = (r.quantity > 0 && r.cost_basis) ? (r.cost_basis / r.quantity) : 0;
+          const avgCostDisplay = (r.quantity > 0 && avgCost > 0) ? ('$' + avgCost.toFixed(2)) : '—';
           const isDisabled = r.quantity <= 0;
           html += `<tr>` +
             `<td>${escapeHtml(r.symbol)}</td>` +
             `<td>${escapeHtml(r.company_name)}</td>` +
             `<td>${r.quantity}</td>` +
-            `<td>${boughtDisplay}</td>` +
+            `<td>${avgCostDisplay}</td>` +
             `<td>$${r.current_price.toFixed(2)}</td>` +
             `<td>$${total.toFixed(2)}</td>` +
             `<td class="${profitLossClass}">${profitLossDisplay}</td>` +
@@ -1182,6 +1322,132 @@
 
     // Clean up on page unload
     window.addEventListener('beforeunload', () => { clearInterval(intervalId); });
+
+    // Purchase History Functions
+    let currentHistoryFilter = 'ALL';
+
+    async function loadPurchaseHistory() {
+      try {
+        // Get all stocks to create filters
+        const holdings = await fetch('/api/stocks').then(r => r.json());
+        const symbols = holdings.map(h => h.symbol).filter(s => s);
+
+        // Create filter buttons
+        const filterContainer = document.getElementById('historyFilter');
+        filterContainer.innerHTML = `
+          <button class="filter-btn ${currentHistoryFilter === 'ALL' ? 'active' : ''}" 
+                  onclick="filterHistory('ALL')">All Stocks</button>
+          ${symbols.map(sym => `
+            <button class="filter-btn ${currentHistoryFilter === sym ? 'active' : ''}" 
+                    onclick="filterHistory('${sym}')">${sym}</button>
+          `).join('')}
+        `;
+
+        // Load history for current filter
+        await displayHistory();
+      } catch (e) {
+        console.error('Error loading purchase history:', e);
+      }
+    }
+
+    async function displayHistory() {
+      try {
+        const historyList = document.getElementById('historyList');
+
+        // Fetch all purchase history
+        const allHistory = [];
+        const holdings = await fetch('/api/stocks').then(r => r.json());
+
+        for (const stock of holdings) {
+          const res = await fetch(`/api/stocks/${stock.symbol}/history`);
+          if (res.ok) {
+            const history = await res.json();
+            allHistory.push(...history);
+          }
+        }
+
+        // Filter history
+        const filteredHistory = currentHistoryFilter === 'ALL'
+          ? allHistory
+          : allHistory.filter(h => h.symbol === currentHistoryFilter);
+
+        // Sort by timestamp (newest first)
+        filteredHistory.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+        // Display history
+        if (filteredHistory.length === 0) {
+          historyList.innerHTML = '<div class="no-history">No purchase history available</div>';
+        } else {
+          historyList.innerHTML = filteredHistory.map(p => `
+            <div class="purchase-item">
+              <div class="purchase-info">
+                <div class="purchase-symbol">${p.symbol}</div>
+                <div class="purchase-date">${formatDate(p.timestamp)}</div>
+                <div class="purchase-details">${p.quantity} shares @ $${p.price.toFixed(2)}</div>
+              </div>
+              <div class="purchase-cost">$${p.totalCost.toFixed(2)}</div>
+            </div>
+          `).join('');
+        }
+      } catch (e) {
+        console.error('Error displaying history:', e);
+        document.getElementById('historyList').innerHTML =
+          '<div class="no-history">Error loading purchase history</div>';
+      }
+    }
+
+    function filterHistory(symbol) {
+      currentHistoryFilter = symbol;
+      loadPurchaseHistory();
+    }
+
+    function formatDate(timestamp) {
+      const date = new Date(timestamp);
+      const now = new Date();
+      const diffMs = now - date;
+      const diffMins = Math.floor(diffMs / 60000);
+      const diffHours = Math.floor(diffMs / 3600000);
+      const diffDays = Math.floor(diffMs / 86400000);
+
+      if (diffMins < 1) return 'Just now';
+      if (diffMins < 60) return `${diffMins} minute${diffMins > 1 ? 's' : ''} ago`;
+      if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
+      if (diffDays < 7) return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
+
+      return date.toLocaleString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    }
+
+    // Load purchase history on page load and after buying stocks
+    async function initializePage() {
+      // Check authentication first
+      if (!await checkAuth()) {
+        return;
+      }
+      authPassed = true;
+
+      // Display username from cookie
+      usernameDisplay.textContent = getCookie('username') || 'Guest';
+
+      // Initial load + auto-refresh
+      fetchHoldingsAndRender();
+      loadPurchaseHistory(); // Load purchase history
+      const intervalId = setInterval(() => {
+        fetchHoldingsAndRender();
+        loadPurchaseHistory(); // Refresh history too
+      }, 30000);
+
+      // Clean up on page unload
+      window.addEventListener('beforeunload', () => { clearInterval(intervalId); });
+
+      // Setup buy button handler
+      buyBtn.addEventListener('click', handleBuyClick);
+    }
   </script>
 </body>
 

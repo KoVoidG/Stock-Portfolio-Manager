@@ -90,6 +90,16 @@ public class Server {
             }
         });
 
+        get("/profit.html", (req, res) -> {
+            try {
+                res.type("text/html");
+                return readFileContent("public/test_profit_loss.html");
+            } catch (Exception e) {
+                res.status(500);
+                return "Error loading page: " + e.getMessage();
+            }
+        });
+
         // Serve static assets (images, CSS, etc.) - no auth required
         get("/logo.jpg", (req, res) -> {
             try {
@@ -369,13 +379,13 @@ public class Server {
                 if (currentPrice < 0) {
                     currentPrice = s == null ? 0.0 : s.getPrice();
                 }
-                // Get bought price from stock object
-                double boughtPrice = s == null ? 0.0 : s.getPrice();
+                // Get cost basis for this stock
+                double costBasis = portfolio.getCostBasis(sym);
                 return Map.of(
                         "symbol", sym,
                         "company_name", s == null ? null : s.getcompany_Name(),
                         "stock_exchange", s == null ? null : s.getStock(),
-                        "bought_price", boughtPrice,
+                        "cost_basis", costBasis,
                         "current_price", currentPrice,
                         "quantity", e.getValue());
             }).toList());
@@ -443,6 +453,24 @@ public class Server {
             portfolio.removeStock(symbol, Integer.MAX_VALUE);
             PortfolioPersistence.savePortfolio(portfolio);
             return gson.toJson(Map.of("status", "deleted"));
+        });
+
+        // Get purchase history for a stock
+        get("/api/stocks/:symbol/history", (req, res) -> {
+            res.type("application/json");
+            String symbol = req.params("symbol");
+            if (symbol == null) {
+                res.status(400);
+                return gson.toJson(new ErrorResponse("Invalid symbol"));
+            }
+            List<Portfolio.Purchase> history = portfolio.getPurchaseHistory(symbol);
+            return gson.toJson(history.stream().map(p -> Map.of(
+                "symbol", p.getSymbol(),
+                "quantity", p.getQuantity(),
+                "price", p.getPrice(),
+                "timestamp", p.getTimestamp(),
+                "totalCost", p.getTotalCost()
+            )).toList());
         });
     }
 
