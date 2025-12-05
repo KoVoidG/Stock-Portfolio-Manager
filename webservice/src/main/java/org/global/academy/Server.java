@@ -56,6 +56,9 @@ public class Server {
             return "OK";
         });
 
+        System.out.println("Server succesfully running on port 8080");
+        System.out.println("Access here: http://localhost:8080");
+
         Gson gson = new Gson();
 
         // Default route: serve index.html
@@ -224,11 +227,11 @@ public class Server {
                 res.type("application/json");
                 String token = UUID.randomUUID().toString();
                 validTokens.put(token, lr.username); // Store the valid token
-                
+
                 // Set HTTP-only cookies for secure authentication
                 res.cookie("/", "authToken", token, 86400, true, true); // 24 hours, HTTP-only, secure in production
                 res.cookie("/", "username", lr.username, 86400, false, false); // Accessible to JS for display
-                
+
                 System.out.println("Login successful for user: " + lr.username + ", token: " + token);
                 return gson.toJson(new LoginResponse(token, lr.username));
             } else {
@@ -465,11 +468,11 @@ public class Server {
             }
             List<Portfolio.Purchase> history = portfolio.getPurchaseHistory(symbol);
             return gson.toJson(history.stream().map(p -> Map.of(
-                "symbol", p.getSymbol(),
-                "quantity", p.getQuantity(),
-                "price", p.getPrice(),
-                "timestamp", p.getTimestamp(),
-                "totalCost", p.getTotalCost()
+                    "symbol", p.getSymbol(),
+                    "quantity", p.getQuantity(),
+                    "price", p.getPrice(),
+                    "timestamp", p.getTimestamp(),
+                    "totalCost", p.getTotalCost()
             )).toList());
         });
     }
