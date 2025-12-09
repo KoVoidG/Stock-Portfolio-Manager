@@ -814,7 +814,7 @@
     </header>
 
     <div class="main">
-      <section class="card add-stock" style="max-width:380px;">
+      <section class="card add-stock" style="max-width:280px;">
         <h3 style="margin-top:0;margin-bottom:10px">Add Stock</h3>
         <label for="symbolSelect">Symbol</label>
         <div style="position:relative;">
@@ -837,15 +837,128 @@
         <p id="buyStatus" style="margin-top:8px;font-size:0.95rem;color: var(--accent-dark);"></p>
       </section>
 
-      <section class="card" style="flex:2 1 540px;">
-        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
-          <div>
-            <div class="muted">Total Portfolio Value</div>
-            <div class="large-value" id="totalValue">$0.00</div>
+      <section class="card" style="flex:3 1 700px;">
+        <!-- Portfolio Stats Cards -->
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-bottom:25px;">
+
+          <!-- Total Portfolio Value Card -->
+          <div
+            style="background:rgba(60,40,30,0.03);padding:22px;border-radius:16px;border:1px solid rgba(212,132,92,0.15);transition:all 0.3s ease;position:relative;overflow:hidden;">
+            <div
+              style="position:absolute;top:0;right:0;width:100px;height:100px;background:radial-gradient(circle,rgba(212,132,92,0.08),transparent);border-radius:50%;transform:translate(30%,-30%);">
+            </div>
+            <div style="position:relative;">
+              <!-- Icon and Title Row -->
+              <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+                <div
+                  style="width:40px;height:40px;background:linear-gradient(135deg,rgba(212,132,92,0.15),rgba(201,115,70,0.1));border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.5"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="12" y1="1" x2="12" y2="23"></line>
+                    <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                  </svg>
+                </div>
+                <div style="font-size:0.8rem;font-weight:600;color:#999;text-transform:uppercase;letter-spacing:0.5px;">
+                  Portfolio Value</div>
+              </div>
+              <!-- Value and Description -->
+              <div style="text-align:left;">
+                <div
+                  style="font-size:2rem;font-weight:800;color:var(--text-dark);line-height:1;margin-bottom:6px;word-break:keep-all;white-space:nowrap;"
+                  id="totalValue">$0.00</div>
+                <div style="font-size:0.75rem;color:#999;font-weight:500;">Total Holdings</div>
+              </div>
+            </div>
           </div>
-          <div style="min-width:160px;text-align:right">
-            <div class="muted">Auto-refresh</div>
-            <div style="font-weight:700">Every 30s</div>
+
+          <!-- Total Profit Card -->
+          <div
+            style="background:rgba(40,167,69,0.03);padding:22px;border-radius:16px;border:1px solid rgba(40,167,69,0.15);transition:all 0.3s ease;position:relative;overflow:hidden;">
+            <div
+              style="position:absolute;top:0;right:0;width:100px;height:100px;background:radial-gradient(circle,rgba(40,167,69,0.08),transparent);border-radius:50%;transform:translate(30%,-30%);">
+            </div>
+            <div style="position:relative;">
+              <!-- Icon and Title Row -->
+              <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+                <div
+                  style="width:40px;height:40px;background:linear-gradient(135deg,rgba(40,167,69,0.15),rgba(40,167,69,0.1));border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#28a745" stroke-width="2.5"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+                    <polyline points="17 6 23 6 23 12"></polyline>
+                  </svg>
+                </div>
+                <div style="font-size:0.8rem;font-weight:600;color:#999;text-transform:uppercase;letter-spacing:0.5px;">
+                  Total Profit</div>
+              </div>
+              <!-- Value and Description -->
+              <div style="text-align:left;">
+                <div class="profit"
+                  style="font-size:2rem;font-weight:800;line-height:1;margin-bottom:6px;word-break:keep-all;white-space:nowrap;"
+                  id="totalProfit">$0.00</div>
+                <div style="font-size:0.75rem;color:#999;font-weight:500;">Gains from investments</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Total Loss Card -->
+          <div
+            style="background:rgba(220,53,69,0.03);padding:22px;border-radius:16px;border:1px solid rgba(220,53,69,0.15);transition:all 0.3s ease;position:relative;overflow:hidden;">
+            <div
+              style="position:absolute;top:0;right:0;width:100px;height:100px;background:radial-gradient(circle,rgba(220,53,69,0.08),transparent);border-radius:50%;transform:translate(30%,-30%);">
+            </div>
+            <div style="position:relative;">
+              <!-- Icon and Title Row -->
+              <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+                <div
+                  style="width:40px;height:40px;background:linear-gradient(135deg,rgba(220,53,69,0.15),rgba(220,53,69,0.1));border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#dc3545" stroke-width="2.5"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="23 18 13.5 8.5 8.5 13.5 1 6"></polyline>
+                    <polyline points="17 18 23 18 23 12"></polyline>
+                  </svg>
+                </div>
+                <div style="font-size:0.8rem;font-weight:600;color:#999;text-transform:uppercase;letter-spacing:0.5px;">
+                  Total Loss</div>
+              </div>
+              <!-- Value and Description -->
+              <div style="text-align:left;">
+                <div class="loss"
+                  style="font-size:2rem;font-weight:800;line-height:1;margin-bottom:6px;word-break:keep-all;white-space:nowrap;"
+                  id="totalLoss">$0.00</div>
+                <div style="font-size:0.75rem;color:#999;font-weight:500;">Losses from investments</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Auto-refresh Info Card -->
+          <div
+            style="background:rgba(212,132,92,0.03);padding:22px;border-radius:16px;border:1px solid rgba(212,132,92,0.15);transition:all 0.3s ease;position:relative;overflow:hidden;">
+            <div
+              style="position:absolute;top:0;right:0;width:100px;height:100px;background:radial-gradient(circle,rgba(212,132,92,0.08),transparent);border-radius:50%;transform:translate(30%,-30%);">
+            </div>
+            <div style="position:relative;">
+              <!-- Icon and Title Row -->
+              <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+                <div
+                  style="width:40px;height:40px;background:linear-gradient(135deg,rgba(212,132,92,0.15),rgba(201,115,70,0.1));border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.5"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="23 4 23 10 17 10"></polyline>
+                    <polyline points="1 20 1 14 7 14"></polyline>
+                    <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+                  </svg>
+                </div>
+                <div style="font-size:0.8rem;font-weight:600;color:#999;text-transform:uppercase;letter-spacing:0.5px;">
+                  Auto-refresh</div>
+              </div>
+              <!-- Value and Description -->
+              <div style="text-align:left;">
+                <div style="font-size:2rem;font-weight:800;color:var(--text-dark);line-height:1;margin-bottom:6px;">30s
+                </div>
+                <div style="font-size:0.75rem;color:#999;font-weight:500;">Live price updates</div>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -1187,6 +1300,8 @@
         // Process and render all stocks
         let html = '';
         let totalPortfolio = 0;
+        let totalProfit = 0;
+        let totalLoss = 0;
         for (const r of allStocks) {
           const total = r.quantity * r.current_price;
           totalPortfolio += total;
@@ -1204,10 +1319,13 @@
             profitLossTotal = totalCurrentValue - totalCostBasis;
             profitLossDisplay = '$' + profitLossTotal.toFixed(2);
 
+            // Add to separate profit or loss totals
             if (profitLossTotal > 0) {
               profitLossClass = 'profit';
+              totalProfit += profitLossTotal;
             } else if (profitLossTotal < 0) {
               profitLossClass = 'loss';
+              totalLoss += Math.abs(profitLossTotal);
             }
           }
 
@@ -1229,6 +1347,13 @@
         holdingsBody.innerHTML = html;
         totalValueEl.textContent = '$' + totalPortfolio.toFixed(2);
 
+        // Update total profit and loss displays
+        const totalProfitEl = document.getElementById('totalProfit');
+        const totalLossEl = document.getElementById('totalLoss');
+
+        totalProfitEl.textContent = '$' + totalProfit.toFixed(2);
+        totalLossEl.textContent = '$' + totalLoss.toFixed(2);
+
         // Attach sell handlers — open modal instead of prompt
         document.querySelectorAll('.sell-btn:not(:disabled)').forEach(btn => {
           btn.addEventListener('click', async (ev) => {
@@ -1242,6 +1367,8 @@
       } catch (err) {
         holdingsBody.innerHTML = '<tr><td colspan="7">Unable to load holdings</td></tr>';
         totalValueEl.textContent = '$0.00';
+        document.getElementById('totalProfit').textContent = '$0.00';
+        document.getElementById('totalLoss').textContent = '$0.00';
         console.error(err);
       }
     }
