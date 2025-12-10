@@ -60,3 +60,14 @@ coverage/
 *.zip
 *.tar.gz
 *.rar
+
+# Local documentation files (keep local only)
+README.Docker.md
+README.Render.md
+RENDER_DEPLOYMENT_GUIDE.md
+RENDER_CHECKLIST.md
+RENDER_ARCHITECTURE.md
+DEPLOYMENT_PACKAGE.md
+GIT_COMMIT_GUIDE.md
+render.yaml
+test-docker.ps1
