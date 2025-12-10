@@ -56,7 +56,7 @@ public class Server {
             return "OK";
         });
 
-        System.out.println("Server succesfully running on port 8080");
+        System.out.println("Server successfully running on port 8080");
         System.out.println("Access here: http://localhost:8080");
 
         Gson gson = new Gson();
@@ -87,16 +87,6 @@ public class Server {
             try {
                 res.type("text/html");
                 return readFileContent("public/login.html");
-            } catch (Exception e) {
-                res.status(500);
-                return "Error loading page: " + e.getMessage();
-            }
-        });
-
-        get("/profit.html", (req, res) -> {
-            try {
-                res.type("text/html");
-                return readFileContent("public/test_profit_loss.html");
             } catch (Exception e) {
                 res.status(500);
                 return "Error loading page: " + e.getMessage();
