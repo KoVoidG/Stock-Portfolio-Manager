@@ -1,1 +1,62 @@
+# Maven build artifacts
 target/
+*.class
+*.jar
+*.war
+*.ear
+*.nar
+
+# Maven wrapper (keep mvnw and mvnw.cmd, ignore downloaded files)
+.mvn/wrapper/maven-wrapper.jar
+
+# IDE files
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+.settings/
+.classpath
+.project
+.factorypath
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.cache
+
+# Application data (portfolio data - optional, uncomment if you don't want to commit user data)
+# data/
+# *.json
+
+# Environment variables (if you add a .env file later)
+.env
+.env.local
+.env.*.local
+
+# Test coverage
+coverage/
+*.coverage
+
+# Package files
+*.zip
+*.tar.gz
+*.rar
