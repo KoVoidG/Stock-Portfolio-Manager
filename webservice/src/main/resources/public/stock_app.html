@@ -432,7 +432,7 @@
                     exchange: data.stock_exchange || 'N/A',
                     currentPrice: `$${data.current_price.toFixed(2)}`,
                     priceWhenBought: priceWhenBought,
-                    owner: localStorage.getItem('username') || 'N/A' // Assuming login sets this
+                    owner: getCookie('username') || 'N/A' // Get username from cookie
                 };
             } catch (e) {
                 console.error('Error fetching stock data:', e);

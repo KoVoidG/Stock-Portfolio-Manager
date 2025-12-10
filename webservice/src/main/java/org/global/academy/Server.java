@@ -219,7 +219,7 @@ public class Server {
                 validTokens.put(token, lr.username); // Store the valid token
 
                 // Set HTTP-only cookies for secure authentication
-                res.cookie("/", "authToken", token, 86400, true, true); // 24 hours, HTTP-only, secure in production
+                res.cookie("/", "authToken", token, 86400, true, true); // 24 hours, HTTP-only, secure=false for HTTP
                 res.cookie("/", "username", lr.username, 86400, false, false); // Accessible to JS for display
 
                 System.out.println("Login successful for user: " + lr.username + ", token: " + token);
