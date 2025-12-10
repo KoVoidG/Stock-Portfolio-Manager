@@ -4,8 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import java.time.Instant;
 
 public class Portfolio {
 
@@ -58,7 +57,7 @@ public class Portfolio {
         
         // Record purchase in history
         if (quantity > 0) {
-            String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+            String timestamp = Instant.now().toString(); // ISO 8601 format with UTC timezone
             purchaseHistory.add(new Purchase(symbol, quantity, stock.getPrice(), timestamp));
         }
     }
