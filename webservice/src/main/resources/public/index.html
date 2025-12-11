@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Welcome to Global Academy</title>
+  <title>Welcome to Kygfolio</title>
   <style>
     /* Template Twist - Pastel Purple Theme */
     * {
@@ -149,14 +149,97 @@
       .container {
         grid-template-columns: 1fr;
         gap: 30px;
+        padding: 30px;
+      }
+
+      .logo {
+        width: 110px;
+        height: 110px;
       }
 
       h1 {
         font-size: 2.2em;
       }
 
+      .subtitle {
+        font-size: 1.2em;
+      }
+
+      p {
+        font-size: 1em;
+      }
+
+      a.button {
+        padding: 14px 38px;
+        font-size: 0.95em;
+      }
+
       .right-content {
-        margin-top: 30px;
+        margin-top: 25px;
+      }
+
+      .hero-image {
+        padding: 18px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      body {
+        padding: 10px;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+      }
+
+      .container {
+        gap: 18px;
+        padding: 20px 16px;
+      }
+
+      .left-content {
+        gap: 18px;
+      }
+
+      .logo {
+        width: 75px;
+        height: 75px;
+      }
+
+      h1 {
+        font-size: 1.6em;
+        letter-spacing: 1px;
+        margin-bottom: 8px;
+      }
+
+      .subtitle {
+        font-size: 0.95em;
+        margin-bottom: 12px;
+      }
+
+      p {
+        font-size: 0.85em;
+        margin-bottom: 16px;
+        line-height: 1.4;
+      }
+
+      a.button {
+        padding: 11px 28px;
+        font-size: 0.85em;
+        border-radius: 35px;
+      }
+
+      .hero-image {
+        padding: 10px;
+        max-height: 200px;
+      }
+
+      .right-content {
+        margin-top: 0;
+      }
+
+      .circle-1,
+      .circle-2 {
+        display: none;
       }
     }
   </style>

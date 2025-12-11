@@ -71,3 +71,6 @@ DEPLOYMENT_PACKAGE.md
 GIT_COMMIT_GUIDE.md
 render.yaml
 test-docker.ps1
+
+# Docker
+*.dockerignore

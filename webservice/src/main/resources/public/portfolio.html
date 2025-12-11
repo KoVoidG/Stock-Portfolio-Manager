@@ -122,6 +122,7 @@
 
     .card h3 {
       color: var(--text-dark);
+      margin-top: 0;
       margin-bottom: 20px;
       font-size: 1.3em;
       font-weight: 800;
@@ -311,7 +312,7 @@
     #buyStatus {
       margin-top: 12px;
       font-size: 0.9rem;
-      color: var(--text-dark);
+      color: var(--accent-dark);
       font-weight: 600;
       min-height: 20px;
     }
@@ -610,36 +611,545 @@
     }
 
     @media (max-width: 768px) {
+      body {
+        padding: 20px 10px;
+      }
+
       .wrap {
-        padding: 25px 20px;
+        padding: 20px 16px;
+        border-radius: 20px;
       }
 
       header {
         flex-direction: column;
         align-items: flex-start;
-        gap: 15px;
+        gap: 12px;
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+      }
+
+      .user {
+        gap: 8px;
+      }
+
+      .username {
+        font-size: 1rem;
+      }
+
+      .muted {
+        font-size: 0.8rem;
+      }
+
+      .controls {
+        display: flex;
+        gap: 6px;
+        width: 100%;
+      }
+
+      .controls button {
+        flex: 1;
+        padding: 10px 12px;
+        font-size: 0.85rem;
+        margin-left: 0;
+        border-radius: 12px;
       }
 
       .main {
         flex-direction: column;
-        gap: 20px;
+        gap: 16px;
       }
 
       .card {
         flex: 1 1 100%;
+        padding: 18px;
+        border-radius: 14px;
+      }
+
+      .card h3 {
+        font-size: 1.05em;
+        margin-bottom: 15px;
+      }
+
+      .add-stock {
+        max-width: 100% !important;
+      }
+
+      .add-stock label {
+        font-size: 0.85rem;
+        margin-bottom: 8px;
+      }
+
+      input[type=number] {
+        padding: 12px 14px;
+        font-size: 0.9rem;
+        margin-bottom: 10px;
+      }
+
+      .custom-dropdown-btn {
+        padding: 12px 14px;
+        font-size: 0.9rem;
+      }
+
+      .add-stock button {
+        padding: 12px;
+        font-size: 0.9rem;
+        margin-top: 8px;
+      }
+
+      #buyStatus {
+        font-size: 0.8rem;
+        margin-top: 8px;
+      }
+
+      /* Stat cards improvements */
+      .main>section>div[style*="grid-template-columns"] {
+        gap: 10px !important;
+      }
+
+      .main>section>div[style*="grid-template-columns"]>div {
+        padding: 16px !important;
+      }
+
+      .main>section>div[style*="grid-template-columns"] div[style*="font-size:0.8rem"] {
+        font-size: 0.7rem !important;
+      }
+
+      .main>section>div[style*="grid-template-columns"] div[style*="font-size:2rem"] {
+        font-size: 1.5rem !important;
+      }
+
+      .main>section>div[style*="grid-template-columns"] div[style*="font-size:0.75rem"] {
+        font-size: 0.65rem !important;
+      }
+
+      /* Improved table responsiveness */
+      .holdings {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        border-radius: 10px;
       }
 
       table {
-        font-size: 0.85rem;
+        font-size: 0.8rem;
+        min-width: 580px;
       }
 
       th,
       td {
-        padding: 10px;
+        padding: 8px 6px;
+        white-space: nowrap;
+        font-size: 0.8rem;
+      }
+
+      th {
+        font-size: 0.8rem;
+      }
+
+      /* Touch-friendly buttons */
+      button.sell-btn {
+        padding: 8px 12px;
+        min-width: 55px;
+        font-size: 0.8rem;
       }
 
       .modal-content {
+        width: 92%;
+        padding: 20px 16px;
+        border-radius: 16px;
+      }
+
+      .modal-header {
+        font-size: 1.15em;
+        margin-bottom: 16px;
+        padding-bottom: 10px;
+      }
+
+      .large-value {
+        font-size: 1.6rem;
+      }
+
+      /* Purchase history */
+      .purchase-history-card {
+        padding: 18px;
+        margin-top: 16px;
+      }
+
+      .purchase-history-card h3 {
+        font-size: 1.05em;
+        margin-bottom: 15px;
+      }
+
+      .filter-btn {
+        font-size: 0.8rem;
+        padding: 8px 12px;
+      }
+
+      .purchase-item {
+        padding: 12px;
+        margin-bottom: 10px;
+        text-align: left;
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .purchase-info {
+        text-align: left;
+      }
+
+      .purchase-symbol {
+        font-size: 1em;
+        text-align: left !important;
+      }
+
+      .purchase-date {
+        font-size: 0.75em;
+        text-align: left !important;
+      }
+
+      .purchase-details {
+        font-size: 0.85em;
+        text-align: left !important;
+      }
+
+      .purchase-cost {
+        font-size: 1.05em;
+        text-align: right;
+      }
+    }
+
+    /* Additional breakpoint for very small screens */
+    @media (max-width: 480px) {
+      body {
+        padding: 15px 8px;
+      }
+
+      .wrap {
+        padding: 16px 12px;
+        border-radius: 16px;
+      }
+
+      header {
+        gap: 10px;
+        margin-bottom: 16px;
+        padding-bottom: 12px;
+      }
+
+      .username {
+        font-size: 0.95rem;
+      }
+
+      .muted {
+        font-size: 0.75rem;
+      }
+
+      .controls {
+        flex-direction: column;
+        gap: 6px;
+      }
+
+      .controls button {
+        width: 100%;
+        padding: 11px;
+        font-size: 0.85rem;
+      }
+
+      .card {
+        padding: 14px;
+      }
+
+      .card h3 {
+        font-size: 0.95em;
+        margin-bottom: 12px;
+      }
+
+      .add-stock label {
+        font-size: 0.8rem;
+      }
+
+      input[type=number] {
+        padding: 11px 12px;
+        font-size: 0.85rem;
+      }
+
+      .custom-dropdown-btn {
+        padding: 11px 12px;
+        font-size: 0.85rem;
+      }
+
+      .add-stock button {
+        padding: 11px;
+        font-size: 0.85rem;
+      }
+
+      /* 2x2 grid for stat cards on mobile */
+      .main>section:not(.add-stock)>div[style*="grid-template-columns"] {
+        grid-template-columns: 1fr 1fr !important;
+        gap: 8px !important;
+      }
+
+      .main>section>div[style*="grid-template-columns"]>div {
+        padding: 12px 10px !important;
+      }
+
+      /* Icon container sizing */
+      .main>section>div[style*="grid-template-columns"] div[style*="width:40px"] {
+        width: 32px !important;
+        height: 32px !important;
+      }
+
+      .main>section>div[style*="grid-template-columns"] svg {
+        width: 16px !important;
+        height: 16px !important;
+      }
+
+      /* Stat card text sizing */
+      .main>section>div[style*="grid-template-columns"] div[style*="font-size:2rem"],
+      .main>section>div[style*="grid-template-columns"] div[style*="font-size:1.5rem"] {
+        font-size: 1.1rem !important;
+      }
+
+      .main>section>div[style*="grid-template-columns"] div[style*="font-size:0.8rem"],
+      .main>section>div[style*="grid-template-columns"] div[style*="font-size:0.7rem"] {
+        font-size: 0.6rem !important;
+        letter-spacing: 0.3px !important;
+      }
+
+      .main>section>div[style*="grid-template-columns"] div[style*="font-size:0.75rem"],
+      .main>section>div[style*="grid-template-columns"] div[style*="font-size:0.65rem"] {
+        font-size: 0.55rem !important;
+      }
+
+      /* Hide decorative background circles on mobile */
+      .main>section>div[style*="grid-template-columns"] div[style*="position:absolute"] {
+        display: none !important;
+      }
+
+      /* Simplified table for mobile - hide unnecessary columns */
+      table {
+        font-size: 0.75rem;
+        min-width: auto;
+        table-layout: fixed;
+        width: 100%;
+      }
+
+      th,
+      td {
+        padding: 8px 4px;
+        font-size: 0.75rem;
+      }
+
+      th {
+        font-size: 0.75rem;
+      }
+
+      /* Hide Company and Avg Cost columns on mobile */
+      th:nth-child(2),
+      td:nth-child(2),
+      th:nth-child(4),
+      td:nth-child(4) {
+        display: none;
+      }
+
+      /* Optimize column widths */
+      th:nth-child(1),
+      td:nth-child(1) {
+        width: 15%;
+      }
+
+      th:nth-child(3),
+      td:nth-child(3) {
+        width: 10%;
+        text-align: center;
+      }
+
+      th:nth-child(5),
+      td:nth-child(5),
+      th:nth-child(6),
+      td:nth-child(6),
+      th:nth-child(7),
+      td:nth-child(7) {
+        width: 20%;
+      }
+
+      th:nth-child(8),
+      td:nth-child(8) {
+        width: 15%;
+      }
+
+      button.sell-btn {
+        padding: 7px 8px;
+        font-size: 0.7rem;
+        min-width: 40px;
+      }
+
+      /* Abbreviate table headers on mobile */
+      th:nth-child(3)::after {
+        content: 'Qty';
+      }
+
+      th:nth-child(3) {
+        font-size: 0;
+      }
+
+      th:nth-child(5)::after {
+        content: 'Current';
+      }
+
+      th:nth-child(5) {
+        font-size: 0;
+      }
+
+      th:nth-child(6)::after {
+        content: 'Total';
+      }
+
+      th:nth-child(6) {
+        font-size: 0;
+      }
+
+      th:nth-child(7)::after {
+        content: 'P/L';
+      }
+
+      th:nth-child(7) {
+        font-size: 0;
+      }
+
+      th::after {
+        font-size: 0.75rem;
+      }
+
+      .large-value {
+        font-size: 1.3rem;
+      }
+
+      /* Improve modal on small screens */
+      .modal-content {
         width: 95%;
+        padding: 16px 12px;
+        max-height: 88vh;
+        overflow-y: auto;
+      }
+
+      .modal-header {
+        font-size: 1em;
+        margin-bottom: 12px;
+      }
+
+      .modal-info {
+        padding: 10px;
+        font-size: 0.85rem;
+        margin-bottom: 14px;
+      }
+
+      .sell-form label {
+        font-size: 0.85rem;
+      }
+
+      .quantity-control {
+        margin: 10px 0;
+      }
+
+      .quantity-control button {
+        width: 36px;
+        height: 36px;
+        font-size: 1.1rem;
+      }
+
+      .quantity-display {
+        font-size: 1.05rem;
+      }
+
+      .sell-summary {
+        padding: 12px;
+        margin: 10px 0;
+        font-size: 0.85rem;
+      }
+
+      .modal-actions button {
+        padding: 10px;
+        font-size: 0.85rem;
+      }
+
+      /* Purchase history improvements */
+      .purchase-history-card {
+        padding: 14px;
+        margin-top: 14px;
+      }
+
+      .purchase-history-card h3 {
+        font-size: 0.85em;
+      }
+
+      .history-filter {
+        margin-bottom: 12px;
+        gap: 6px;
+      }
+
+      .filter-btn {
+        font-size: 0.65rem;
+        padding: 6px 9px;
+      }
+
+      .purchase-item {
+        padding: 9px;
+        margin-bottom: 8px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+        text-align: left;
+      }
+
+      .purchase-symbol {
+        font-size: 0.85em;
+      }
+
+      .purchase-date {
+        font-size: 0.65em;
+        margin-bottom: 3px;
+      }
+
+      .purchase-details {
+        font-size: 0.7em;
+      }
+
+      .purchase-info {
+        text-align: left;
+      }
+
+      .purchase-symbol,
+      .purchase-date,
+      .purchase-details {
+        text-align: left !important;
+        display: block;
+        width: 100%;
+      }
+
+      .purchase-cost {
+        font-size: 0.9em;
+        align-self: flex-end;
+        text-align: right;
+      }
+
+      .no-history {
+        padding: 25px 12px;
+        font-size: 0.8em;
+      }
+    }
+
+    /* Landscape orientation on phones */
+    @media (max-width: 768px) and (orientation: landscape) {
+      .wrap {
+        padding: 12px;
+      }
+
+      .modal-content {
+        max-height: 82vh;
+        overflow-y: auto;
+      }
+
+      header {
+        margin-bottom: 12px;
       }
     }
 
@@ -761,6 +1271,7 @@
 
     .purchase-info {
       flex: 1;
+      text-align: left;
     }
 
     .purchase-symbol {
@@ -768,18 +1279,21 @@
       color: var(--text-dark);
       font-size: 1.1em;
       margin-bottom: 4px;
+      text-align: left;
     }
 
     .purchase-date {
       color: #666;
       font-size: 0.85em;
       margin-bottom: 6px;
+      text-align: left;
     }
 
     .purchase-details {
       color: var(--text-light);
       font-weight: 600;
       font-size: 0.95em;
+      text-align: left;
     }
 
     .purchase-cost {
@@ -815,7 +1329,7 @@
 
     <div class="main">
       <section class="card add-stock" style="max-width:280px;">
-        <h3 style="margin-top:0;margin-bottom:10px">Add Stock</h3>
+        <h3>Add Stock</h3>
         <label for="symbolSelect">Symbol</label>
         <div style="position:relative;">
           <select id="symbolSelect">
@@ -834,7 +1348,7 @@
         <input id="quantityInput" type="number" min="1" value="1">
 
         <button id="buyBtn">Buy / Add</button>
-        <p id="buyStatus" style="margin-top:8px;font-size:0.95rem;color: var(--accent-dark);"></p>
+        <p id="buyStatus"></p>
       </section>
 
       <section class="card" style="flex:3 1 700px;">
@@ -1007,7 +1521,7 @@
       </div>
 
       <div class="sell-form">
-        <label style="font-weight: 600; color: rgba(255,255,255,0.9);">Quantity to Sell</label>
+        <label>Quantity to Sell</label>
 
         <div class="quantity-control">
           <button onclick="decrementSellQuantity()">−</button>

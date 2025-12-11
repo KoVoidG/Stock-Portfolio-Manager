@@ -3,7 +3,8 @@
 
 <head>
   <meta charset="UTF-8">
-  <title>Login Test</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Test</title>
   <style>
     * {
       margin: 0;
@@ -117,6 +118,88 @@
       color: #8B4513;
       font-family: 'Courier New', monospace;
       border: 2px solid rgba(212, 132, 92, 0.2);
+    }
+
+    /* Mobile Responsive Styles */
+    @media (max-width: 600px) {
+      body {
+        padding: 18px;
+      }
+
+      h2 {
+        font-size: 1.9em;
+        margin-bottom: 22px;
+      }
+
+      form {
+        padding: 36px 28px;
+        max-width: 100%;
+        border-radius: 22px;
+      }
+
+      label {
+        font-size: 0.9em;
+        margin-bottom: 10px;
+      }
+
+      input {
+        font-size: 0.9em;
+        padding: 13px 14px;
+        margin-bottom: 18px;
+      }
+
+      button {
+        padding: 14px 18px;
+        font-size: 0.9em;
+      }
+
+      pre#output {
+        font-size: 0.85em;
+        padding: 16px;
+        max-width: 100%;
+        margin-top: 24px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      body {
+        padding: 16px;
+      }
+
+      h2 {
+        font-size: 1.75em;
+        margin-bottom: 18px;
+      }
+
+      form {
+        padding: 30px 22px;
+        border-radius: 20px;
+        width: 75%;
+        height: auto;
+      }
+
+      label {
+        font-size: 0.85em;
+        margin-bottom: 8px;
+      }
+
+      input {
+        font-size: 0.85em;
+        padding: 12px;
+        margin-bottom: 16px;
+      }
+
+      button {
+        padding: 13px 16px;
+        font-size: 0.85em;
+      }
+
+      pre#output {
+        font-size: 0.8em;
+        padding: 14px;
+        margin-top: 20px;
+        width: 75%;
+      }
     }
   </style>
 </head>
