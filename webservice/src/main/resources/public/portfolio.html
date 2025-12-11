@@ -785,18 +785,22 @@
       }
 
       .purchase-item {
-        padding: 12px;
-        margin-bottom: 10px;
-        text-align: left;
         flex-direction: column;
         align-items: flex-start;
+        gap: 8px;
       }
 
       .purchase-info {
-        text-align: left;
+        width: 100%;
       }
 
-      .purchase-symbol {
+      .purchase-cost {
+        align-self: flex-end;
+        margin-left: 0;
+        margin-top: 8px;
+      }
+
+      /* .purchase-symbol {
         font-size: 1em;
         text-align: left !important;
       }
@@ -809,7 +813,7 @@
       .purchase-details {
         font-size: 0.85em;
         text-align: left !important;
-      }
+      } */
 
       .purchase-cost {
         font-size: 1.05em;
@@ -1256,7 +1260,7 @@
       border-left: 4px solid var(--accent);
       display: flex;
       justify-content: space-between;
-      align-items: center;
+      align-items: flex-start;
       transition: all 0.2s;
     }
 
@@ -1272,6 +1276,9 @@
     .purchase-info {
       flex: 1;
       text-align: left;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
     }
 
     .purchase-symbol {
@@ -1280,6 +1287,8 @@
       font-size: 1.1em;
       margin-bottom: 4px;
       text-align: left;
+      display: block;
+      width: 100%;
     }
 
     .purchase-date {
@@ -1287,6 +1296,8 @@
       font-size: 0.85em;
       margin-bottom: 6px;
       text-align: left;
+      display: block;
+      width: 100%;
     }
 
     .purchase-details {
@@ -1294,12 +1305,16 @@
       font-weight: 600;
       font-size: 0.95em;
       text-align: left;
+      display: block;
+      width: 100%;
     }
 
     .purchase-cost {
       font-weight: 700;
       color: var(--accent-dark);
       font-size: 1.2em;
+      margin-left: 20px;
+      flex-shrink: 0;
     }
 
     .no-history {
